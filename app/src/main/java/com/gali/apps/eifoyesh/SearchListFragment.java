@@ -2,6 +2,7 @@ package com.gali.apps.eifoyesh;
 
 
 import android.Manifest;
+import android.bluetooth.BluetoothA2dp;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,20 +21,18 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
-import com.squareup.picasso.Picasso;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +50,15 @@ public class SearchListFragment extends Fragment implements LocationListener {
 
     //GoogleApiClient mGoogleApiClient;
     int picMaxHeight;
-    FragmnetChanger fragmnetChanger;
+    FragmentChanger fragmentChanger;
     EditText searchET;
-    RecyclerView searchListRV;
+    ContextMenuRecyclerView searchListRV;
 
     ArrayList<ResultItem> allResults;
-    SearchListAdapter adapter;
+    PlacesListAdapter adapter;
+    //SearchListAdapter adapter;
+
+    int currentPosition;
 
     public SearchListFragment() {
         // Required empty public constructor
@@ -68,7 +70,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
                              Bundle savedInstanceState) {
         //setRetainInstance(true);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        fragmnetChanger = (FragmnetChanger) getActivity();
+        fragmentChanger = (FragmentChanger) getActivity();
         if(mRootView==null){
             mRootView = inflater.inflate(R.layout.fragment_search_list, container, false);
         }
@@ -76,11 +78,11 @@ public class SearchListFragment extends Fragment implements LocationListener {
         if (savedInstanceState!=null) {
             allResults = savedInstanceState.getParcelableArrayList("allResults");
             picMaxHeight = savedInstanceState.getInt("picMaxHeight");
+
         }
         if (allResults==null) {
             //get last search from db
             allResults = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
-
         }
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
         mRootView.findViewById(R.id.searchByTextBtn).setOnClickListener(new View.OnClickListener() {
@@ -96,19 +98,71 @@ public class SearchListFragment extends Fragment implements LocationListener {
             }
         });
 
-        searchListRV = (RecyclerView)mRootView.findViewById(R.id.searchListRV);
+        searchListRV = (ContextMenuRecyclerView)mRootView.findViewById(R.id.searchListRV);
         searchListRV.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false));
-        adapter = new SearchListAdapter(getActivity() , fragmnetChanger );
+        //adapter = new SearchListAdapter(getActivity() , fragmnetChanger );
+        adapter = new PlacesListAdapter(getActivity() , fragmentChanger, currentLocation, allResults );
         searchListRV.setAdapter(adapter);
-
+        registerForContextMenu(searchListRV);
         locationManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
         getCurrentLocation();
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(new MySearchReciever(), new IntentFilter(SearchService.INTENT_FILTER_FINISHED_SEARCH));
 
+        if (!Utils.isConnected(getActivity())) {
+            Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
+        }
 
         return mRootView;
     }
+/*
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        //to get the positon on the list
+        currentPosition = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
+        getActivity().getMenuInflater().inflate(R.menu.single_place_context_menu, menu);
+    }
+*/
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        // Inflate Menu from xml resource
+        getActivity().getMenuInflater().inflate(R.menu.single_place_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
+        //Toast.makeText(getActivity() , " User selected  " + info.position, Toast.LENGTH_LONG).show();
+        ResultItem place = allResults.get(info.position);
+        switch (item.getItemId()) {
+            case R.id.addToFavoritesMI:
+                addToFavorites(place);
+                Toast.makeText(getActivity(), getResources().getString(R.string.favoriteAdded), Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.shareMI:
+                startActivity(createShareIntent(place));
+                break;
+        }
+        return  true;
+    }
+/*
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ResultItem place = allResults.get(currentPosition);
+        switch (item.getItemId()) {
+            case R.id.addToFavoritesMI:
+                addToFavorites(place);
+                break;
+            case R.id.shareMI:
+                startActivity(createShareIntent(place));
+                break;
+        }
+        return  true;
+    }
+*/
+
+
 
     private void getCurrentLocation() {
         //get last known location by gps
@@ -131,10 +185,12 @@ public class SearchListFragment extends Fragment implements LocationListener {
             @Override
             public void run() {
                 if(currentLocation==null) {
-                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    } else {
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 1, SearchListFragment.this);
-                    }
+                    try {
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        } else {
+                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 1, SearchListFragment.this);
+                        }
+                    }catch (Exception e) {}
                 }
             }
         };
@@ -158,6 +214,32 @@ public class SearchListFragment extends Fragment implements LocationListener {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, this);
     }
 
+    //to share movie details
+    private Intent createShareIntent(ResultItem place) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+
+        //send a link to place
+        String urlPlace = Utils.buildPlaceUrl(place);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, urlPlace);
+        return shareIntent;
+    }
+
+    private void addToFavorites(ResultItem place) {
+        List<FavoriyePlace2> favorites = FavoriyePlace2.listAll(FavoriyePlace2.class);
+        /*
+        for (int i = 0; i < favorites.size() ; i++) {
+            FavoritePlace favorite = favorites.get(i);
+            if (favorite.placeId.equals(place.placeId)) {
+                Toast.makeText(getActivity(),getResources().getText(R.string.placeAlreadyInFavorites).toString() , Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }*/
+        FavoriyePlace2 favoritePlace = new FavoriyePlace2(place);
+        favoritePlace.save();
+    }
+
     private void addToSearchHistory(String query, int type) {
         List<SearchHistoryItem> history = SearchHistoryItem.listAll(SearchHistoryItem.class);
         if (history.size()>9) {
@@ -178,21 +260,30 @@ public class SearchListFragment extends Fragment implements LocationListener {
     }
 
     private void searchByText() {
+        if (!Utils.isConnected(getActivity())) {
+            Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
+            return;
+        }
         String search = searchET.getText().toString();
         SearchService.startActionFindByText(getActivity(),search,picMaxHeight,currentLocation);
         addToSearchHistory(search, Constants.SEARCH_TYPE_TEXT);
     }
 
     private void searchNearMe() {
+        if (!Utils.isConnected(getActivity())) {
+            Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
+            return;
+        }
         String search = searchET.getText().toString();
         try {
             SearchService.startActionFindNearMe(getActivity(), search, picMaxHeight, currentLocation);
             addToSearchHistory(search, Constants.SEARCH_TYPE_NEAR_ME);
         } catch (NullLocationException nle) {
-            Toast.makeText(getActivity(), "current location is unknown", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getResources().getString(R.string.currentLocationUnknown), Toast.LENGTH_SHORT).show();
         }
     }
 
+    /*
     private class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.ResultItemViewHolder> {
 
         //ArrayList<ResultItem> allResults;
@@ -206,7 +297,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
             this.fragmnetChanger= fragmnetChanger;
         }
 
-        public ResultItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public SearchListAdapter.ResultItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View singleview = LayoutInflater.from(c).inflate(R.layout.search_result_item, null);
             ResultItemViewHolder singleResultVH= new ResultItemViewHolder(singleview);
             return singleResultVH;
@@ -252,7 +343,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
                 if (currentLocation!=null) {
                     //String unit = prefs.getString(Constants.SHARED_PREFERENCES_UNIT, Constants.SHARED_PREFERENCES_UNIT_KM);
                     String unit = prefs.getString("distance_units",Constants.SHARED_PREFERENCES_UNIT_KM);
-                    double distance = ResultItem.getDistance(resultItem.lat, resultItem.lng, currentLocation.getLatitude(), currentLocation.getLongitude(), unit);
+                    double distance = Utils.getDistance(resultItem.lat, resultItem.lng, currentLocation.getLatitude(), currentLocation.getLongitude(), unit);
                     DecimalFormat df = new DecimalFormat("#.#");
                     String distanceString = df.format(distance);
 //                    String unitString = unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM) ? Constants.SHARED_PREFERENCES_UNIT_KM : "miles";
@@ -266,12 +357,15 @@ public class SearchListFragment extends Fragment implements LocationListener {
                         fragmnetChanger.changeFragments(resultItem);
                     }
                 });
+
+
                 Picasso.with(c).load(resultItem.iconUrl).into(iconIV);
 
             }
         }
-    }
 
+    }
+*/
     class MySearchReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

@@ -20,13 +20,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ResultMapFragment extends Fragment {
+public class FavoriteMapFragment extends Fragment {
+
 
     private View mRootView;
-    ResultItem resultItem;
+    FavoritePlace resultItem;
     //FavoritePlace favoritePlace;
 
-    public ResultMapFragment() {
+    public FavoriteMapFragment() {
         // Required empty public constructor
     }
 

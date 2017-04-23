@@ -1,17 +1,15 @@
 package com.gali.apps.eifoyesh;
 
-import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 
 import com.orm.SugarRecord;
 
 /**
- * Created by 1 on 4/19/2017.
+ * Created by 1 on 4/23/2017.
  */
 
-public class ResultItem extends SugarRecord implements Parcelable {
+public class FavoritePlace extends SugarRecord implements Parcelable {
 
     String name;
     String address;
@@ -22,12 +20,9 @@ public class ResultItem extends SugarRecord implements Parcelable {
     String distanceUnit;
     String iconUrl;
     String placeId;
+    public FavoritePlace() {}
 
-    public ResultItem() {
-
-    }
-
-    public ResultItem(String name, String address, double lat, double lng, int number, int distance, String distanceUnit, String iconUrl, String placeId) {
+    public FavoritePlace(String name, String address, double lat, double lng, int number, int distance, String distanceUnit, String iconUrl, String placeId) {
         this.name = name;
         this.address = address;
         this.lat = lat;
@@ -37,10 +32,9 @@ public class ResultItem extends SugarRecord implements Parcelable {
         this.distanceUnit = distanceUnit;
         this.iconUrl = iconUrl;
         this.placeId = placeId;
-
     }
 
-    public ResultItem(String name, String address, int number, String placeId, String iconUrl, double lat, double lng) {
+    public FavoritePlace(String name, String address, int number, String placeId, String iconUrl, double lat, double lng) {
         this.name = name;
         this.address = address;
         this.number = number;
@@ -48,11 +42,22 @@ public class ResultItem extends SugarRecord implements Parcelable {
         this.placeId = placeId;
         this.lat = lat;
         this.lng = lng;
+    }
+
+    public FavoritePlace(ResultItem resultItem) {
+        this.name = resultItem.name;
+        this.address = resultItem.address;
+        this.lat = resultItem.lat;
+        this.lng = resultItem.lng;
+        this.number = resultItem.number;
+        this.distance = resultItem.distance;
+        this.distanceUnit = resultItem.distanceUnit;
+        this.iconUrl = resultItem.iconUrl;
+        this.placeId = resultItem.placeId;
 
     }
 
-
-    protected ResultItem(Parcel in) {
+    protected FavoritePlace(Parcel in) {
         name = in.readString();
         address = in.readString();
         lat = in.readDouble();
@@ -62,18 +67,17 @@ public class ResultItem extends SugarRecord implements Parcelable {
         distanceUnit = in.readString();
         iconUrl = in.readString();
         placeId = in.readString();
-
     }
 
-    public static final Creator<ResultItem> CREATOR = new Creator<ResultItem>() {
+    public static final Creator<FavoritePlace> CREATOR = new Creator<FavoritePlace>() {
         @Override
-        public ResultItem createFromParcel(Parcel in) {
-            return new ResultItem(in);
+        public FavoritePlace createFromParcel(Parcel in) {
+            return new FavoritePlace(in);
         }
 
         @Override
-        public ResultItem[] newArray(int size) {
-            return new ResultItem[size];
+        public FavoritePlace[] newArray(int size) {
+            return new FavoritePlace[size];
         }
     };
 
@@ -93,6 +97,5 @@ public class ResultItem extends SugarRecord implements Parcelable {
         dest.writeString(distanceUnit);
         dest.writeString(iconUrl);
         dest.writeString(placeId);
-
     }
 }

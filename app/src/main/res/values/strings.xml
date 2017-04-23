@@ -7,8 +7,12 @@
     <string name="searchNearMe">near me</string>
     <string name="search">search...</string>
     <string name="messageMustAllowGPSPermission">you must open the GPS permission</string>
+    <string name="currentLocationUnknown">current location is unknown</string>
+    <string name="noInternetConnectionMsg">no internet connection</string>
+    <string name="placeAlreadyInFavorites">Place is already in favorites</string>
     <string name="settings">settings</string>
     <string name="exit">exit</string>
+    <string name="favoriteAdded">added to favorites</string>
 
     <string name="title_display">display</string>
     <string name="title_checkbox_preference">title_checkbox_preference</string>
@@ -23,5 +27,9 @@
     <string name="title_intent_preference">title_intent_preference</string>
     <string name="km">km</string>
     <string name="miles">miles</string>
+    <string name="addToFavorites">add to favorites</string>
+    <string name="share">share</string>
+    <string name="delete">delete</string>
+    <string name="favorites">favorites</string>
 
 </resources>

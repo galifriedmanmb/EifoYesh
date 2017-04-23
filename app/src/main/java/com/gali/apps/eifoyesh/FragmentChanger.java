@@ -4,7 +4,8 @@ package com.gali.apps.eifoyesh;
  * Created by jbt on 22/03/2017.
  */
 
-public interface FragmnetChanger {
+public interface FragmentChanger {
 
     public  void changeFragments(ResultItem resultItem);
+    public  void changeFragments(FavoritePlace resultItem);
 }

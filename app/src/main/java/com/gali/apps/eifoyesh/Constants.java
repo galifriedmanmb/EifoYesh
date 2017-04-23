@@ -19,6 +19,8 @@ public class Constants {
     public static final int SEARCH_TYPE_TEXT = 0;
     public static final int SEARCH_TYPE_NEAR_ME = 1;
 
+    public static final int DB_PLACE_TYPE_LAST_SEARCH = 0;
+    public static final int DB_PLACE_TYPE_FAVORITE = 1;
 
     //public static final String SHARED_PREFERENCES_UNIT = "unit";
     public static final String SHARED_PREFERENCES_UNIT_KM = "km";

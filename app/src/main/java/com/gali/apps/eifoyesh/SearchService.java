@@ -66,8 +66,7 @@ public class SearchService extends IntentService {
                 final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
                 final int picMaxHeight = intent.getIntExtra(EXTRA_PIC_MAX_HEIGHT,0);
                 String query = text.replace(" ","+");
-                String url="https://maps.googleapis.com/maps/api/place/textsearch/json?query="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
-
+                String url = Utils.buildSearchByTextUrl(query);
                 handleActionFind(url, picMaxHeight);
             } else if (ACTION_FIND_NEAR_ME.equals(action)) {
                 final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
@@ -75,7 +74,7 @@ public class SearchService extends IntentService {
                 final double lat = intent.getDoubleExtra(EXTRA_LOCATION_LAT,0);
                 final double lng = intent.getDoubleExtra(EXTRA_LOCATION_LNG,0);
                 String query = text.replace(" ","+");
-                String url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius=500&keyword="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
+                String url = Utils.buildSearchNearMeUrl(query,lat,lng);
                 handleActionFind(url, picMaxHeight);
             }
         }
@@ -119,7 +118,7 @@ public class SearchService extends IntentService {
                         if (photos != null && photos.length() > 0) {
                             JSONObject photo = photos.getJSONObject(0);
                             String icon = photo.getString("photo_reference");
-                            iconUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + picMaxHeight + "&photoreference=" + icon + "&key=" + Constants.GOOGLE_PLACES_API_KEY;
+                            iconUrl = Utils.buildPhotoUrl(picMaxHeight, icon);
                         }
                     } else {
                         Log.d("name", name);
