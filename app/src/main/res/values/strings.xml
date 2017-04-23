@@ -7,4 +7,21 @@
     <string name="searchNearMe">near me</string>
     <string name="search">search...</string>
     <string name="messageMustAllowGPSPermission">you must open the GPS permission</string>
+    <string name="settings">settings</string>
+    <string name="exit">exit</string>
+
+    <string name="title_display">display</string>
+    <string name="title_checkbox_preference">title_checkbox_preference</string>
+    <string name="default_checkbox_preference">default_checkbox_preference</string>
+    <string name="title_edittext_preference">title_edittext_preference</string>
+    <string name="summary_edittext_preference">summary_edittext_preference</string>
+    <string name="dialog_title_edittext_preference">dialog_title_edittext_preference</string>
+    <string name="title_second_section">title_second_section</string>
+    <string name="distance_units">distance units</string>
+    <string name="dialog_distance_units">distance units</string>
+    <string name="entries_list_preference">entries_list_preference</string>
+    <string name="title_intent_preference">title_intent_preference</string>
+    <string name="km">km</string>
+    <string name="miles">miles</string>
+
 </resources>

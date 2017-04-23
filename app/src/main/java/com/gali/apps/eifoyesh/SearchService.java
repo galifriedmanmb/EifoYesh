@@ -7,6 +7,8 @@ import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.gali.apps.eifoyesh.exceptions.NullLocationException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,8 +19,6 @@ import java.util.ArrayList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static android.R.attr.key;
 
 
 public class SearchService extends IntentService {
@@ -42,12 +42,6 @@ public class SearchService extends IntentService {
         intent.setAction(ACTION_FIND_BY_TEXT);
         intent.putExtra(EXTRA_SEARCH_TEXT, text);
         intent.putExtra(EXTRA_PIC_MAX_HEIGHT, picMaxHeight);
-        /*
-        if (location!=null) {
-            intent.putExtra(EXTRA_LOCATION_LAT, location.getLatitude());
-            intent.putExtra(EXTRA_LOCATION_LNG, location.getLongitude());
-        }
-        */
         context.startService(intent);
     }
 
@@ -58,10 +52,9 @@ public class SearchService extends IntentService {
         intent.setAction(ACTION_FIND_NEAR_ME);
         intent.putExtra(EXTRA_SEARCH_TEXT, text);
         intent.putExtra(EXTRA_PIC_MAX_HEIGHT, picMaxHeight);
-        //if (location!=null) {
-            intent.putExtra(EXTRA_LOCATION_LAT, location.getLatitude());
-            intent.putExtra(EXTRA_LOCATION_LNG, location.getLongitude());
-        //}
+        intent.putExtra(EXTRA_LOCATION_LAT, location.getLatitude());
+        intent.putExtra(EXTRA_LOCATION_LNG, location.getLongitude());
+
         context.startService(intent);
     }
 
@@ -72,16 +65,7 @@ public class SearchService extends IntentService {
             if (ACTION_FIND_BY_TEXT.equals(action)) {
                 final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
                 final int picMaxHeight = intent.getIntExtra(EXTRA_PIC_MAX_HEIGHT,0);
-                /*
-                String query = "";
-                String[] tokens = text.split(" ");
-                for (int i = 0; i < tokens.length; i++) {
-                    query = query+"+"+tokens[i];
-                }
-                query = query.substring(1);
-                */
                 String query = text.replace(" ","+");
-                //https://maps.googleapis.com/maps/api/place/textsearch/json?parameters
                 String url="https://maps.googleapis.com/maps/api/place/textsearch/json?query="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
 
                 handleActionFind(url, picMaxHeight);
@@ -92,7 +76,6 @@ public class SearchService extends IntentService {
                 final double lng = intent.getDoubleExtra(EXTRA_LOCATION_LNG,0);
                 String query = text.replace(" ","+");
                 String url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius=500&keyword="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
-                //String url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&keyword=pizza&key=AIzaSyBqhBgDz_b5i4KQ1KQ9IhCWOGKohiJLmWY
                 handleActionFind(url, picMaxHeight);
             }
         }
@@ -160,75 +143,9 @@ public class SearchService extends IntentService {
 
         }catch (IOException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException ex) {
+            ex.printStackTrace();
         }
 
     }
-    /*
-    private void handleActionFindByText(String text, int picMaxHeight) {
-        String query = "";
-        String[] tokens = text.split(" ");
-        for (int i = 0; i < tokens.length; i++) {
-            query = query+"+"+tokens[i];
-        }
-        query = query.substring(1);
-        //https://maps.googleapis.com/maps/api/place/textsearch/json?parameters
-        String url="https://maps.googleapis.com/maps/api/place/textsearch/json?query="+query+"&key="+GOOGLE_PLACES_API_KEY;
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        String jsonResponse="";
-        try {
-            ArrayList<ResultItem> places = new ArrayList<>();
-            client.newCall(request).execute();
-            Response response = client.newCall(request).execute();
-            jsonResponse = response.body().string();
-            JSONObject top = new JSONObject(jsonResponse);
-            JSONArray results = top.getJSONArray("results");
-            for (int i = 0; i < results.length(); i++) {
-                JSONObject result = results.getJSONObject(i);
-                String address = result.getString("formatted_address");
-                String name = result.getString("name");
-                String iconUrl = null;
-                if (result.has("photos")) {
-                    JSONArray photos = result.getJSONArray("photos");
-                    if (photos != null && photos.length() > 0) {
-                        JSONObject photo = photos.getJSONObject(0);
-                        String icon = photo.getString("photo_reference");
-                        iconUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + picMaxHeight + "&photoreference=" + icon + "&key=" + GOOGLE_PLACES_API_KEY;
-                    }
-                } else {
-                    Log.d("name",name);
-                }
-                String id = result.getString("id");
-                JSONObject geometry = result.getJSONObject("geometry");
-                JSONObject location = geometry.getJSONObject("location");
-                double lat = location.getDouble("lat");
-                double lng = location.getDouble("lng");
-                //String iconUrl = "https://maps.googleapis.com/maps/api/place/photo?maxheight="+picMaxHeight+"&photoreference="+icon+"&key="+GOOGLE_PLACES_API_KEY;
-                ResultItem place = new ResultItem(name,address,i,id,iconUrl,lat,lng);
-                places.add(place);
-            }
-            Intent finishedSearchIntent = new Intent(INTENT_FILTER_FINISHED_SEARCH);
-            finishedSearchIntent.putExtra("allresults", places);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(finishedSearchIntent);
-
-        }catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    private void handleActionFindNearMe(String text, int picMaxHeight, double lat, double lng) {
-        String url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +"location="+lat+","+lng+"&radius=500&keyword="+text+"&key="+GOOGLE_PLACES_API_KEY;
-
-    }
-
-   */
 }

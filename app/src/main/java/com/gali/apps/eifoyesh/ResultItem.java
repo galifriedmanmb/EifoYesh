@@ -3,12 +3,15 @@ package com.gali.apps.eifoyesh;
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+
+import com.orm.SugarRecord;
 
 /**
  * Created by 1 on 4/19/2017.
  */
 
-public class ResultItem implements Parcelable {
+public class ResultItem extends SugarRecord implements Parcelable {
 
 
 
@@ -76,7 +79,7 @@ public class ResultItem implements Parcelable {
         dest.writeString(id);
     }
 
-    public static double getDistance(double lat1, double lng1, double lat2, double lng2, int unit) {
+    public static double getDistance(double lat1, double lng1, double lat2, double lng2, String unit) {
         int r = 6371; // average radius of the earth in km
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lng2 - lng1);
@@ -85,7 +88,7 @@ public class ResultItem implements Parcelable {
                         * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double d = r * c;
-        if (unit == Constants.SHARED_PREFERENCES_UNIT_KM)
+        if (unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM))
             return d;
         else
             return d/1.61;

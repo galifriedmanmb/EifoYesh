@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,14 +18,11 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,10 +30,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.gali.apps.eifoyesh.exceptions.NullLocationException;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -79,8 +77,11 @@ public class SearchListFragment extends Fragment implements LocationListener {
             allResults = savedInstanceState.getParcelableArrayList("allResults");
             picMaxHeight = savedInstanceState.getInt("picMaxHeight");
         }
-        if (allResults==null)
-            allResults = new ArrayList<>();
+        if (allResults==null) {
+            //get last search from db
+            allResults = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
+
+        }
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
         mRootView.findViewById(R.id.searchByTextBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,15 +158,36 @@ public class SearchListFragment extends Fragment implements LocationListener {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, this);
     }
 
+    private void addToSearchHistory(String query, int type) {
+        List<SearchHistoryItem> history = SearchHistoryItem.listAll(SearchHistoryItem.class);
+        if (history.size()>9) {
+            SearchHistoryItem oldItem = history.get(0);
+            oldItem.delete();
+            SearchHistoryItem newItem = new SearchHistoryItem(query,type);
+            newItem.save();
+        }
+
+    }
+
+    private void saveLastSearch() {
+        ResultItem.deleteAll(ResultItem.class);
+        for (int i = 0; i < allResults.size() ; i++) {
+            ResultItem item = allResults.get(i);
+            item.save();
+        }
+    }
+
     private void searchByText() {
         String search = searchET.getText().toString();
         SearchService.startActionFindByText(getActivity(),search,picMaxHeight,currentLocation);
+        addToSearchHistory(search, Constants.SEARCH_TYPE_TEXT);
     }
 
     private void searchNearMe() {
         String search = searchET.getText().toString();
         try {
             SearchService.startActionFindNearMe(getActivity(), search, picMaxHeight, currentLocation);
+            addToSearchHistory(search, Constants.SEARCH_TYPE_NEAR_ME);
         } catch (NullLocationException nle) {
             Toast.makeText(getActivity(), "current location is unknown", Toast.LENGTH_SHORT).show();
         }
@@ -228,12 +250,13 @@ public class SearchListFragment extends Fragment implements LocationListener {
                 addressTV.setText(resultItem.address);
                 numberTV.setText(""+resultItem.number);
                 if (currentLocation!=null) {
-                    int unit = prefs.getInt(Constants.SHARED_PREFERENCES_UNIT, Constants.SHARED_PREFERENCES_UNIT_KM);
+                    //String unit = prefs.getString(Constants.SHARED_PREFERENCES_UNIT, Constants.SHARED_PREFERENCES_UNIT_KM);
+                    String unit = prefs.getString("distance_units",Constants.SHARED_PREFERENCES_UNIT_KM);
                     double distance = ResultItem.getDistance(resultItem.lat, resultItem.lng, currentLocation.getLatitude(), currentLocation.getLongitude(), unit);
                     DecimalFormat df = new DecimalFormat("#.#");
                     String distanceString = df.format(distance);
-                    String unitString = (unit == Constants.SHARED_PREFERENCES_UNIT_KM) ? "km" : "miles";
-                    distanceTV.setText(distanceString + " " + unitString);
+//                    String unitString = unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM) ? Constants.SHARED_PREFERENCES_UNIT_KM : "miles";
+                    distanceTV.setText(distanceString + " " + unit);
                 } else {
                     distanceTV.setText("");
                 }
@@ -264,6 +287,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
             //SearchListAdapter adapter= new SearchListAdapter(allResults, context , fragmnetChanger );
             //searchListRV.setAdapter(adapter);
             adapter.notifyDataSetChanged();
+            saveLastSearch();
         }
     }
 

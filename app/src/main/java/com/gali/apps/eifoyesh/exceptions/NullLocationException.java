@@ -1,4 +1,4 @@
-package com.gali.apps.eifoyesh;
+package com.gali.apps.eifoyesh.exceptions;
 
 /**
  * Created by 1 on 4/21/2017.

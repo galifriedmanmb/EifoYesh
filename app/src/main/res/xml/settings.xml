@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+<PreferenceCategory
+    android:title="@string/title_display">
+
+    <ListPreference
+        android:key="distance_units"
+        android:title="@string/distance_units"
+        android:dialogTitle="@string/dialog_distance_units"
+        android:entries="@array/entries_units"
+        android:entryValues="@array/entryvalues_units"
+        android:defaultValue="km"/>
+
+</PreferenceCategory>
+<!--
+<PreferenceCategory
+    android:title="@string/title_second_section">
+    <Preference
+        android:title="@string/title_intent_preference">
+        <intent android:action="android.intent.action.VIEW"
+            android:data="http://codepath.com/" />
+    </Preference>
+
+</PreferenceCategory>
+-->
+</PreferenceScreen>
