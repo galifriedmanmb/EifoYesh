@@ -22,6 +22,7 @@ public class ResultItem extends SugarRecord implements Parcelable {
     String distanceUnit;
     String iconUrl;
     String placeId;
+    String photoEncoded;
 
     public ResultItem() {
 
@@ -62,7 +63,7 @@ public class ResultItem extends SugarRecord implements Parcelable {
         distanceUnit = in.readString();
         iconUrl = in.readString();
         placeId = in.readString();
-
+        photoEncoded = in.readString();
     }
 
     public static final Creator<ResultItem> CREATOR = new Creator<ResultItem>() {
@@ -93,6 +94,6 @@ public class ResultItem extends SugarRecord implements Parcelable {
         dest.writeString(distanceUnit);
         dest.writeString(iconUrl);
         dest.writeString(placeId);
-
+        dest.writeString(photoEncoded);
     }
 }

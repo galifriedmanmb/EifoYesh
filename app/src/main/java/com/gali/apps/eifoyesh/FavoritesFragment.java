@@ -6,12 +6,9 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
 import java.util.ArrayList;
 
@@ -23,7 +20,7 @@ public class FavoritesFragment extends Fragment {
 
     private View mRootView;
     //ArrayList<ResultItem> allFavoriteItems;
-    ArrayList<FavoriyePlace2> allFavoritePlaces;
+    ArrayList<FavoritePlace> allFavoritePlaces;
     RecyclerView favoritesRV;
 
     Location currentLocation;
@@ -46,7 +43,7 @@ public class FavoritesFragment extends Fragment {
             mRootView = inflater.inflate(R.layout.fragment_favorites, container, false);
         }
 
-        allFavoritePlaces = (ArrayList<FavoriyePlace2>)FavoriyePlace2.listAll(FavoriyePlace2.class);
+        allFavoritePlaces = (ArrayList<FavoritePlace>) FavoritePlace.listAll(FavoritePlace.class);
 
         favoritesRV = (RecyclerView)mRootView.findViewById(R.id.favoritesRV);
         favoritesRV.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false));

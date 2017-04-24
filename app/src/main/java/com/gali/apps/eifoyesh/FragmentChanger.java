@@ -7,5 +7,5 @@ package com.gali.apps.eifoyesh;
 public interface FragmentChanger {
 
     public  void changeFragments(ResultItem resultItem);
-    public  void changeFragments(FavoritePlace resultItem);
+
 }

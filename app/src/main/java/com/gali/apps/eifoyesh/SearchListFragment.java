@@ -2,16 +2,19 @@ package com.gali.apps.eifoyesh;
 
 
 import android.Manifest;
-import android.bluetooth.BluetoothA2dp;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Handler;
@@ -20,19 +23,24 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,17 +56,14 @@ public class SearchListFragment extends Fragment implements LocationListener {
     Location currentLocation;
     LocationManager locationManager;
 
-    //GoogleApiClient mGoogleApiClient;
-    int picMaxHeight;
     FragmentChanger fragmentChanger;
     EditText searchET;
     ContextMenuRecyclerView searchListRV;
 
-    ArrayList<ResultItem> allResults;
+    ArrayList<ResultItem> allResults = new ArrayList<>();
     PlacesListAdapter adapter;
-    //SearchListAdapter adapter;
 
-    int currentPosition;
+    boolean first = true;
 
     public SearchListFragment() {
         // Required empty public constructor
@@ -74,22 +79,14 @@ public class SearchListFragment extends Fragment implements LocationListener {
         if(mRootView==null){
             mRootView = inflater.inflate(R.layout.fragment_search_list, container, false);
         }
-
-        if (savedInstanceState!=null) {
-            allResults = savedInstanceState.getParcelableArrayList("allResults");
-            picMaxHeight = savedInstanceState.getInt("picMaxHeight");
-
-        }
-        if (allResults==null) {
-            //get last search from db
-            allResults = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
-        }
+        //allResults = new ArrayList<>();
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
         mRootView.findViewById(R.id.searchByTextBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchByText();
             }
+
         });
         mRootView.findViewById(R.id.searchNearMeBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,31 +106,56 @@ public class SearchListFragment extends Fragment implements LocationListener {
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(new MySearchReciever(), new IntentFilter(SearchService.INTENT_FILTER_FINISHED_SEARCH));
 
-        if (!Utils.isConnected(getActivity())) {
-            Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
-        }
+        if (savedInstanceState!=null) {
+            ArrayList<ResultItem> newResults = savedInstanceState.getParcelableArrayList("allResults");
+            allResults.clear();
+            allResults.addAll(newResults);
+            adapter.notifyDataSetChanged();
+            first = savedInstanceState.getBoolean("first");
+        } else {
+            if (!Utils.isConnected(getActivity())) {
+                Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
+                //get last search from db
+                ArrayList<ResultItem> newResults  = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
+                allResults.clear();
+                allResults.addAll(newResults);
+                adapter.notifyDataSetChanged();
 
+            } else {
+                if (first) {
+                    //run last search
+                    String lastSearch = prefs.getString(Constants.PREF_LAST_SEARCH, null);
+                    int lastSearchType = prefs.getInt(Constants.PREF_LAST_SEARCH_TYPE, -1);
+                    if (lastSearch != null) {
+                        searchET.setText(lastSearch);
+                        if (lastSearchType == Constants.SEARCH_TYPE_TEXT)
+                            searchByText();
+                        else
+                            searchNearMe();
+                    }
+                }
+
+            }
+
+        }
+        first = false;
         return mRootView;
     }
-/*
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        //to get the positon on the list
-        currentPosition = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
-        getActivity().getMenuInflater().inflate(R.menu.single_place_context_menu, menu);
-    }
-*/
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         // Inflate Menu from xml resource
         getActivity().getMenuInflater().inflate(R.menu.single_place_context_menu, menu);
+
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
         //Toast.makeText(getActivity() , " User selected  " + info.position, Toast.LENGTH_LONG).show();
+
         ResultItem place = allResults.get(info.position);
         switch (item.getItemId()) {
             case R.id.addToFavoritesMI:
@@ -146,23 +168,6 @@ public class SearchListFragment extends Fragment implements LocationListener {
         }
         return  true;
     }
-/*
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        ResultItem place = allResults.get(currentPosition);
-        switch (item.getItemId()) {
-            case R.id.addToFavoritesMI:
-                addToFavorites(place);
-                break;
-            case R.id.shareMI:
-                startActivity(createShareIntent(place));
-                break;
-        }
-        return  true;
-    }
-*/
-
-
 
     private void getCurrentLocation() {
         //get last known location by gps
@@ -227,36 +232,28 @@ public class SearchListFragment extends Fragment implements LocationListener {
     }
 
     private void addToFavorites(ResultItem place) {
-        List<FavoriyePlace2> favorites = FavoriyePlace2.listAll(FavoriyePlace2.class);
-        /*
+        List<FavoritePlace> favorites = FavoritePlace.listAll(FavoritePlace.class);
+
         for (int i = 0; i < favorites.size() ; i++) {
             FavoritePlace favorite = favorites.get(i);
             if (favorite.placeId.equals(place.placeId)) {
                 Toast.makeText(getActivity(),getResources().getText(R.string.placeAlreadyInFavorites).toString() , Toast.LENGTH_SHORT).show();
                 return;
             }
-        }*/
-        FavoriyePlace2 favoritePlace = new FavoriyePlace2(place);
+        }
+        FavoritePlace favoritePlace = new FavoritePlace(place);
         favoritePlace.save();
     }
 
-    private void addToSearchHistory(String query, int type) {
-        List<SearchHistoryItem> history = SearchHistoryItem.listAll(SearchHistoryItem.class);
-        if (history.size()>9) {
-            SearchHistoryItem oldItem = history.get(0);
-            oldItem.delete();
-            SearchHistoryItem newItem = new SearchHistoryItem(query,type);
-            newItem.save();
-        }
+    private void saveLastSearch(String search, int type) {
 
-    }
+//        SaveSearchTask saveTask = new SaveSearchTask();
+//        saveTask.execute();
 
-    private void saveLastSearch() {
-        ResultItem.deleteAll(ResultItem.class);
-        for (int i = 0; i < allResults.size() ; i++) {
-            ResultItem item = allResults.get(i);
-            item.save();
-        }
+        prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
+        prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
+        searchET.setText("");
+
     }
 
     private void searchByText() {
@@ -265,8 +262,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
             return;
         }
         String search = searchET.getText().toString();
-        SearchService.startActionFindByText(getActivity(),search,picMaxHeight,currentLocation);
-        addToSearchHistory(search, Constants.SEARCH_TYPE_TEXT);
+        SearchService.startActionFindByText(getActivity(), search, currentLocation);
     }
 
     private void searchNearMe() {
@@ -276,96 +272,13 @@ public class SearchListFragment extends Fragment implements LocationListener {
         }
         String search = searchET.getText().toString();
         try {
-            SearchService.startActionFindNearMe(getActivity(), search, picMaxHeight, currentLocation);
-            addToSearchHistory(search, Constants.SEARCH_TYPE_NEAR_ME);
+            SearchService.startActionFindNearMe(getActivity(), search, currentLocation);
         } catch (NullLocationException nle) {
             Toast.makeText(getActivity(), getResources().getString(R.string.currentLocationUnknown), Toast.LENGTH_SHORT).show();
         }
     }
 
-    /*
-    private class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.ResultItemViewHolder> {
 
-        //ArrayList<ResultItem> allResults;
-        Context c;
-        FragmnetChanger fragmnetChanger;
-
-        //public SearchListAdapter(ArrayList<ResultItem> allResults, Context c, FragmnetChanger fragmnetChanger) {
-        public SearchListAdapter(Context c, FragmnetChanger fragmnetChanger) {
-            //this.allResults = allResults;
-            this.c = c;
-            this.fragmnetChanger= fragmnetChanger;
-        }
-
-        public SearchListAdapter.ResultItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View singleview = LayoutInflater.from(c).inflate(R.layout.search_result_item, null);
-            ResultItemViewHolder singleResultVH= new ResultItemViewHolder(singleview);
-            return singleResultVH;
-        }
-
-        @Override
-        public int getItemCount() {
-            return allResults.size();
-        }
-
-        @Override
-        public void onBindViewHolder(ResultItemViewHolder holder, int position) {
-            ResultItem resultItem = allResults.get(position);
-            holder.bindData(resultItem);
-
-        }
-
-        class ResultItemViewHolder extends RecyclerView.ViewHolder {
-
-            TextView nameTV;
-            TextView addressTV;
-            TextView numberTV;
-            TextView distanceTV;
-            ImageView iconIV;
-            LinearLayout layout;
-
-
-            public ResultItemViewHolder(View itemView) {
-                super(itemView);
-                nameTV = (TextView) itemView.findViewById(R.id.nameTV);
-                addressTV = (TextView) itemView.findViewById(R.id.addressTV);
-                numberTV = (TextView) itemView.findViewById(R.id.numberTV);
-                distanceTV = (TextView) itemView.findViewById(R.id.distanceTV);
-                iconIV = (ImageView) itemView.findViewById(R.id.iconIV);
-                layout = (LinearLayout) itemView.findViewById(R.id.resultItemLinearLayout);
-
-            }
-
-            public void bindData (final ResultItem resultItem) {
-                nameTV.setText(resultItem.name);
-                addressTV.setText(resultItem.address);
-                numberTV.setText(""+resultItem.number);
-                if (currentLocation!=null) {
-                    //String unit = prefs.getString(Constants.SHARED_PREFERENCES_UNIT, Constants.SHARED_PREFERENCES_UNIT_KM);
-                    String unit = prefs.getString("distance_units",Constants.SHARED_PREFERENCES_UNIT_KM);
-                    double distance = Utils.getDistance(resultItem.lat, resultItem.lng, currentLocation.getLatitude(), currentLocation.getLongitude(), unit);
-                    DecimalFormat df = new DecimalFormat("#.#");
-                    String distanceString = df.format(distance);
-//                    String unitString = unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM) ? Constants.SHARED_PREFERENCES_UNIT_KM : "miles";
-                    distanceTV.setText(distanceString + " " + unit);
-                } else {
-                    distanceTV.setText("");
-                }
-                layout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        fragmnetChanger.changeFragments(resultItem);
-                    }
-                });
-
-
-                Picasso.with(c).load(resultItem.iconUrl).into(iconIV);
-
-            }
-        }
-
-    }
-*/
     class MySearchReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -376,12 +289,18 @@ public class SearchListFragment extends Fragment implements LocationListener {
                     status = status+": "+error;
                 Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
             }
-            allResults = intent.getParcelableArrayListExtra("allresults");
-            //searchListRV.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false));
-            //SearchListAdapter adapter= new SearchListAdapter(allResults, context , fragmnetChanger );
-            //searchListRV.setAdapter(adapter);
+            //delete all historySearch from db
+            ResultItem.deleteAll(ResultItem.class);
+
+            ArrayList<ResultItem> newResults  = intent.getParcelableArrayListExtra("allresults");
+            allResults.clear();
+            allResults.addAll(newResults);
+            //allResults = intent.getParcelableArrayListExtra("allresults");
+            String search = intent.getStringExtra("search");
+            int type = intent.getIntExtra("type",Constants.SEARCH_TYPE_NEAR_ME);
             adapter.notifyDataSetChanged();
-            saveLastSearch();
+            saveLastSearch(search, type);
+
         }
     }
 
@@ -427,75 +346,39 @@ public class SearchListFragment extends Fragment implements LocationListener {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("allResults",allResults);
-        outState.putInt("picMaxHeight",picMaxHeight);
+        outState.putBoolean("first",first);
 
     }
-/*
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
 
-        if (savedInstanceState!=null) {
-            allResults = savedInstanceState.getParcelableArrayList("allResults");
-            adapter.notifyDataSetChanged();
+    class SaveSearchTask extends AsyncTask<String, Void, Bitmap> {
+
+        protected void onPreExecute() {
         }
 
-    }
-*/
-    /*
-    abstract class PhotoTask extends AsyncTask<String, Void, PhotoTask.AttributedPhoto> {
-        private int mHeight;
-        private int mWidth;
-
-        public PhotoTask(int width, int height) {
-            mHeight = height;
-            mWidth = width;
-        }
-
-
-
-        protected AttributedPhoto doInBackground(String... params) {
-            if (params.length != 1) {
-                return null;
-            }
-
-            final String placeId = params[0];
-            AttributedPhoto attributedPhoto = null;
-
-            PlacePhotoMetadataResult result = Places.GeoDataApi
-                    .getPlacePhotos(mGoogleApiClient, placeId).await();
-
-            if (result.getStatus().isSuccess()) {
-                PlacePhotoMetadataBuffer photoMetadataBuffer = result.getPhotoMetadata();
-                if (photoMetadata.getCount() > 0 && !isCancelled()) {
-                    // Get the first bitmap and its attributions.
-                    PlacePhotoMetadata photo = photoMetadata.get(0);
-                    CharSequence attribution = photo.getAttributions();
-                    // Load a scaled bitmap for this photo.
-                    Bitmap image = photo.getScaledPhoto(mGoogleApiClient, mWidth, mHeight).await()
-                            .getBitmap();
-
-                    attributedPhoto = new AttributedPhoto(attribution, image);
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            for (int i = 0; i < allResults.size() ; i++) {
+                ResultItem resultItem = allResults.get(i);
+                try {
+                    Bitmap photoBM = Picasso.with(getActivity()).load(resultItem.iconUrl).get();
+                    if (photoBM!=null) {
+                        resultItem.photoEncoded = Utils.encodeToBase64(photoBM);
+//                        iconIV.setImageBitmap(photoBM);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                // Release the PlacePhotoMetadataBuffer.
-                photoMetadataBuffer.release();
             }
-            return attributedPhoto;
+            return null;
         }
 
-
-
-        class AttributedPhoto {
-
-            public final CharSequence attribution;
-
-            public final Bitmap bitmap;
-
-            public AttributedPhoto(CharSequence attribution, Bitmap bitmap) {
-                this.attribution = attribution;
-                this.bitmap = bitmap;
+        protected void onPostExecute(Bitmap bitmap) {
+            ResultItem.deleteAll(ResultItem.class);
+            for (int i = 0; i < allResults.size() ; i++) {
+                ResultItem resultItem = allResults.get(i);
+                resultItem.save();
             }
+
         }
     }
-*/
 }

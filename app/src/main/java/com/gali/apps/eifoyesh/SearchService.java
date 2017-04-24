@@ -3,11 +3,13 @@ package com.gali.apps.eifoyesh;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,21 +39,19 @@ public class SearchService extends IntentService {
         super("SearchService");
     }
 
-    public static void startActionFindByText(Context context, String text, int picMaxHeight, Location location) {
+    public static void startActionFindByText(Context context, String text, Location location) {
         Intent intent = new Intent(context, SearchService.class);
         intent.setAction(ACTION_FIND_BY_TEXT);
         intent.putExtra(EXTRA_SEARCH_TEXT, text);
-        intent.putExtra(EXTRA_PIC_MAX_HEIGHT, picMaxHeight);
         context.startService(intent);
     }
 
-    public static void startActionFindNearMe(Context context, String text, int picMaxHeight, Location location) throws NullLocationException {
+    public static void startActionFindNearMe(Context context, String text, Location location) throws NullLocationException {
         if (location==null)
             throw new NullLocationException();
         Intent intent = new Intent(context, SearchService.class);
         intent.setAction(ACTION_FIND_NEAR_ME);
         intent.putExtra(EXTRA_SEARCH_TEXT, text);
-        intent.putExtra(EXTRA_PIC_MAX_HEIGHT, picMaxHeight);
         intent.putExtra(EXTRA_LOCATION_LAT, location.getLatitude());
         intent.putExtra(EXTRA_LOCATION_LNG, location.getLongitude());
 
@@ -64,23 +64,21 @@ public class SearchService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_FIND_BY_TEXT.equals(action)) {
                 final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
-                final int picMaxHeight = intent.getIntExtra(EXTRA_PIC_MAX_HEIGHT,0);
                 String query = text.replace(" ","+");
                 String url = Utils.buildSearchByTextUrl(query);
-                handleActionFind(url, picMaxHeight);
+                handleActionFind(url, text, Constants.SEARCH_TYPE_TEXT);
             } else if (ACTION_FIND_NEAR_ME.equals(action)) {
                 final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
-                final int picMaxHeight = intent.getIntExtra(EXTRA_PIC_MAX_HEIGHT,0);
                 final double lat = intent.getDoubleExtra(EXTRA_LOCATION_LAT,0);
                 final double lng = intent.getDoubleExtra(EXTRA_LOCATION_LNG,0);
                 String query = text.replace(" ","+");
                 String url = Utils.buildSearchNearMeUrl(query,lat,lng);
-                handleActionFind(url, picMaxHeight);
+                handleActionFind(url, text, Constants.SEARCH_TYPE_NEAR_ME);
             }
         }
     }
 
-    private void handleActionFind(String url, int picMaxHeight) {
+    private void handleActionFind(String url, String text, int type) {
 //Log.d("****************url: ",url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -118,7 +116,7 @@ public class SearchService extends IntentService {
                         if (photos != null && photos.length() > 0) {
                             JSONObject photo = photos.getJSONObject(0);
                             String icon = photo.getString("photo_reference");
-                            iconUrl = Utils.buildPhotoUrl(picMaxHeight, icon);
+                            iconUrl = Utils.buildPhotoUrl(icon);
                         }
                     } else {
                         Log.d("name", name);
@@ -129,6 +127,7 @@ public class SearchService extends IntentService {
                     double lat = location.getDouble("lat");
                     double lng = location.getDouble("lng");
                     //String iconUrl = "https://maps.googleapis.com/maps/api/place/photo?maxheight="+picMaxHeight+"&photoreference="+icon+"&key="+GOOGLE_PLACES_API_KEY;
+
                     ResultItem place = new ResultItem(name, address, i, id, iconUrl, lat, lng);
                     places.add(place);
                 }
@@ -138,6 +137,8 @@ public class SearchService extends IntentService {
             finishedSearchIntent.putExtra("status", status);
             finishedSearchIntent.putExtra("error_message",error_message);
             finishedSearchIntent.putExtra("allresults", places);
+            finishedSearchIntent.putExtra("search", text);
+            finishedSearchIntent.putExtra("type", type);
             LocalBroadcastManager.getInstance(this).sendBroadcast(finishedSearchIntent);
 
         }catch (IOException e) {

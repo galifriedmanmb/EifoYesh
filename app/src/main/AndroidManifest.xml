@@ -31,7 +31,7 @@
             android:name=".SearchService"
             android:exported="false"></service>
         <!--  <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A"/>-->
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyBp--GgJR-PifaHqW47bLliMTJPTXoeh6A"/>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A"/>
     </application>
 
 </manifest>

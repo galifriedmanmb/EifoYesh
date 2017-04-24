@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements FragmentChanger {
         if (searchListFragment == null) {
             searchListFragment = new SearchListFragment();
             getFragmentManager().beginTransaction().replace(R.id.activity_main, searchListFragment, "searchListFragment").commit();
-            searchListFragment.picMaxHeight = 100;
         }
             //searchListFragment.mGoogleApiClient = mGoogleApiClient;
 
@@ -40,19 +39,6 @@ public class MainActivity extends AppCompatActivity implements FragmentChanger {
 
         if (resultItem!=null) {
             ResultMapFragment resultMapFragment = new ResultMapFragment();
-            resultMapFragment.resultItem = resultItem;
-
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.addToBackStack("changeFrags");
-            transaction.replace(R.id.activity_main, resultMapFragment).commit();
-        }
-
-    }
-
-    public void changeFragments(FavoritePlace resultItem) {
-
-        if (resultItem!=null) {
-            FavoriteMapFragment resultMapFragment = new FavoriteMapFragment();
             resultMapFragment.resultItem = resultItem;
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();

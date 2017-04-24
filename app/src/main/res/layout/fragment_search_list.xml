@@ -25,8 +25,7 @@
                 android:ems="10"
                 android:id="@+id/searchET"
                 android:layout_weight="1"
-                android:hint="@string/search"
-                android:text="pizza in london" />
+                android:hint="@string/search" />
 
             <Button
                 android:text="@string/searchNearMe"
