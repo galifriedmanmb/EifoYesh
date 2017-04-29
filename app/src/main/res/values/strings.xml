@@ -2,7 +2,6 @@
     <string name="app_name">EifoYesh</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="searchByText">by text</string>
     <string name="searchNearMe">near me</string>
     <string name="search">search...</string>
@@ -11,25 +10,45 @@
     <string name="noInternetConnectionMsg">no internet connection</string>
     <string name="placeAlreadyInFavorites">Place is already in favorites</string>
     <string name="settings">settings</string>
+    <string name="title_display">display</string>
+    <string name="exitKey">exit</string>
     <string name="exit">exit</string>
     <string name="favoriteAdded">added to favorites</string>
-
-    <string name="title_display">display</string>
-    <string name="title_checkbox_preference">title_checkbox_preference</string>
-    <string name="default_checkbox_preference">default_checkbox_preference</string>
-    <string name="title_edittext_preference">title_edittext_preference</string>
-    <string name="summary_edittext_preference">summary_edittext_preference</string>
-    <string name="dialog_title_edittext_preference">dialog_title_edittext_preference</string>
-    <string name="title_second_section">title_second_section</string>
+    <string name="favoriteDeleted">removed from favorites</string>
     <string name="distance_units">distance units</string>
     <string name="dialog_distance_units">distance units</string>
-    <string name="entries_list_preference">entries_list_preference</string>
-    <string name="title_intent_preference">title_intent_preference</string>
+
     <string name="km">km</string>
     <string name="miles">miles</string>
     <string name="addToFavorites">add to favorites</string>
     <string name="share">share</string>
     <string name="delete">delete</string>
     <string name="favorites">favorites</string>
+    <string name="deleteAllFavoritesKey">delete_all_favorites</string>
+    <string name="deleteAllFavorites">delete all favorites</string>
+    <string name="areYouSureYouWantToDeleteAllFavorites">are you sure you want to delete all favorites?</string>
+    <string name="allFavoritesDeleted">all favorites deleted</string>
+    <string name="gotoFavorites">go to favorites</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="home">home</string>
+    <string name="sharePlaceMessage">EifoYesh app wants to share this location with you:</string>
+    <string name="powerConnected">power is connected</string>
+    <string name="powerDisconnected">power is disconnected</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--
+        <string name="title_checkbox_preference">title_checkbox_preference</string>
+        <string name="default_checkbox_preference">default_checkbox_preference</string>
+        <string name="title_edittext_preference">title_edittext_preference</string>
+        <string name="summary_edittext_preference">summary_edittext_preference</string>
+        <string name="dialog_title_edittext_preference">dialog_title_edittext_preference</string>
+        <string name="title_second_section">title_second_section</string>
+        <string name="entries_list_preference">entries_list_preference</string>
+        <string name="title_intent_preference">title_intent_preference</string>
+    -->
+
 
 </resources>

@@ -11,8 +11,8 @@ public class Constants {
 
     //private static int key = 0;
 
-    //public static final String GOOGLE_PLACES_API_KEY = "AIzaSyBp--GgJR-PifaHqW47bLliMTJPTXoeh6A";
-    public static final String GOOGLE_PLACES_API_KEY = "AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A";
+    public static final String GOOGLE_PLACES_API_KEY = "AIzaSyBp--GgJR-PifaHqW47bLliMTJPTXoeh6A";
+    //public static final String GOOGLE_PLACES_API_KEY = "AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A";
     //public static final String GOOGLE_PLACES_API_KEY2 = "AIzaSyClw2A3GuHtDpLgfrutpqQXTqGNltW5rWI";
     //public static final String GOOGLE_PLACES_API_KEY3 = "AIzaSyCgRHv2hyJ5NBHQAwv7VNcIaifRRzysTRw";
     public static final String PREF_LAST_SEARCH = "last_search";

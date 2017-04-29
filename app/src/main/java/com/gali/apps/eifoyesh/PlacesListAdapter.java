@@ -110,7 +110,7 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
                 layout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        fragmentChanger.changeFragments(resultItem);
+                        fragmentChanger.changeFragmentsToMap(resultItem);
                     }
                 });
 

@@ -6,6 +6,7 @@ package com.gali.apps.eifoyesh;
 
 public interface FragmentChanger {
 
-    public  void changeFragments(ResultItem resultItem);
+    public  void changeFragmentsToMap(ResultItem resultItem);
+    public  void goBack();
 
 }

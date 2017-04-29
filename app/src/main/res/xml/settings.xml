@@ -3,7 +3,6 @@
 
 <PreferenceCategory
     android:title="@string/title_display">
-
     <ListPreference
         android:key="distance_units"
         android:title="@string/distance_units"
@@ -11,8 +10,16 @@
         android:entries="@array/entries_units"
         android:entryValues="@array/entryvalues_units"
         android:defaultValue="km"/>
-
 </PreferenceCategory>
+
+    <Preference
+            android:title="@string/deleteAllFavorites"
+            android:key="@string/deleteAllFavoritesKey" />
+    <Preference
+            android:title="@string/exit"
+            android:key="@string/exitKey" />
+
+
 <!--
 <PreferenceCategory
     android:title="@string/title_second_section">

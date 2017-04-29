@@ -1,6 +1,5 @@
 package com.gali.apps.eifoyesh;
 
-
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -44,24 +43,11 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+public class SearchListFragment extends PlacesListFragment{
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class SearchListFragment extends Fragment implements LocationListener {
-
+    MySearchReciever mySearchReciever;
     SharedPreferences prefs;
-    private View mRootView;
-
-    Location currentLocation;
-    LocationManager locationManager;
-
-    FragmentChanger fragmentChanger;
     EditText searchET;
-    ContextMenuRecyclerView searchListRV;
-
-    ArrayList<ResultItem> allResults = new ArrayList<>();
-    PlacesListAdapter adapter;
 
     boolean first = true;
 
@@ -69,17 +55,16 @@ public class SearchListFragment extends Fragment implements LocationListener {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //setRetainInstance(true);
+        layoutId = R.layout.fragment_search_list;
+        allPlaces = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
+        mRootView = super.onCreateView(inflater,container,savedInstanceState);
+
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        fragmentChanger = (FragmentChanger) getActivity();
-        if(mRootView==null){
-            mRootView = inflater.inflate(R.layout.fragment_search_list, container, false);
-        }
-        //allResults = new ArrayList<>();
+
+        mySearchReciever = new MySearchReciever();
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
         mRootView.findViewById(R.id.searchByTextBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,30 +80,15 @@ public class SearchListFragment extends Fragment implements LocationListener {
             }
         });
 
-        searchListRV = (ContextMenuRecyclerView)mRootView.findViewById(R.id.searchListRV);
-        searchListRV.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false));
-        //adapter = new SearchListAdapter(getActivity() , fragmnetChanger );
-        adapter = new PlacesListAdapter(getActivity() , fragmentChanger, currentLocation, allResults );
-        searchListRV.setAdapter(adapter);
-        registerForContextMenu(searchListRV);
-        locationManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
-        getCurrentLocation();
-
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(new MySearchReciever(), new IntentFilter(SearchService.INTENT_FILTER_FINISHED_SEARCH));
-
         if (savedInstanceState!=null) {
-            ArrayList<ResultItem> newResults = savedInstanceState.getParcelableArrayList("allResults");
-            allResults.clear();
-            allResults.addAll(newResults);
-            adapter.notifyDataSetChanged();
-            first = savedInstanceState.getBoolean("first");
+           first = savedInstanceState.getBoolean("first");
         } else {
             if (!Utils.isConnected(getActivity())) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
                 //get last search from db
                 ArrayList<ResultItem> newResults  = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
-                allResults.clear();
-                allResults.addAll(newResults);
+                allPlaces.clear();
+                allPlaces.addAll(newResults);
                 adapter.notifyDataSetChanged();
 
             } else {
@@ -156,7 +126,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
         ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
         //Toast.makeText(getActivity() , " User selected  " + info.position, Toast.LENGTH_LONG).show();
 
-        ResultItem place = allResults.get(info.position);
+        ResultItem place = (ResultItem)allPlaces.get(info.position);
         switch (item.getItemId()) {
             case R.id.addToFavoritesMI:
                 addToFavorites(place);
@@ -169,57 +139,8 @@ public class SearchListFragment extends Fragment implements LocationListener {
         return  true;
     }
 
-    private void getCurrentLocation() {
-        //get last known location by gps
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 12);
-        } else {
-            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        }
 
-        if(currentLocation == null) {
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            } else {
-                currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
-        }
-
-        //wait for 60 seconds and try to get location using network provider (cell ro wifi)
-        final Handler handler = new Handler();
-        Runnable getLocationByNetwork = new Runnable() {
-            @Override
-            public void run() {
-                if(currentLocation==null) {
-                    try {
-                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        } else {
-                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 1, SearchListFragment.this);
-                        }
-                    }catch (Exception e) {}
-                }
-            }
-        };
-        handler.postDelayed(getLocationByNetwork  , 60000);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 12) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startGPS();
-            } else {
-                Toast.makeText(getActivity(), getResources().getText(R.string.messageMustAllowGPSPermission).toString(), Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void startGPS() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, this);
-    }
-
-    //to share movie details
+    //to share place details
     private Intent createShareIntent(ResultItem place) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -227,7 +148,7 @@ public class SearchListFragment extends Fragment implements LocationListener {
 
         //send a link to place
         String urlPlace = Utils.buildPlaceUrl(place);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, urlPlace);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.sharePlaceMessage)+"\n"+ urlPlace);
         return shareIntent;
     }
 
@@ -246,14 +167,9 @@ public class SearchListFragment extends Fragment implements LocationListener {
     }
 
     private void saveLastSearch(String search, int type) {
-
-//        SaveSearchTask saveTask = new SaveSearchTask();
-//        saveTask.execute();
-
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
         searchET.setText("");
-
     }
 
     private void searchByText() {
@@ -293,8 +209,8 @@ public class SearchListFragment extends Fragment implements LocationListener {
             ResultItem.deleteAll(ResultItem.class);
 
             ArrayList<ResultItem> newResults  = intent.getParcelableArrayListExtra("allresults");
-            allResults.clear();
-            allResults.addAll(newResults);
+            allPlaces.clear();
+            allPlaces.addAll(newResults);
             //allResults = intent.getParcelableArrayListExtra("allresults");
             String search = intent.getStringExtra("search");
             int type = intent.getIntExtra("type",Constants.SEARCH_TYPE_NEAR_ME);
@@ -305,80 +221,24 @@ public class SearchListFragment extends Fragment implements LocationListener {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //outState.putParcelableArrayList("allPlaces",allPlaces);
+        outState.putBoolean("first",first);
+
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 12);
-        } else {
-            startGPS();
-        }
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mySearchReciever, new IntentFilter(SearchService.INTENT_FILTER_FINISHED_SEARCH));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        }
-        locationManager.removeUpdates(this);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        currentLocation=location;
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mySearchReciever);
 
     }
 
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("allResults",allResults);
-        outState.putBoolean("first",first);
-
-    }
-
-    class SaveSearchTask extends AsyncTask<String, Void, Bitmap> {
-
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            for (int i = 0; i < allResults.size() ; i++) {
-                ResultItem resultItem = allResults.get(i);
-                try {
-                    Bitmap photoBM = Picasso.with(getActivity()).load(resultItem.iconUrl).get();
-                    if (photoBM!=null) {
-                        resultItem.photoEncoded = Utils.encodeToBase64(photoBM);
-//                        iconIV.setImageBitmap(photoBM);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        protected void onPostExecute(Bitmap bitmap) {
-            ResultItem.deleteAll(ResultItem.class);
-            for (int i = 0; i < allResults.size() ; i++) {
-                ResultItem resultItem = allResults.get(i);
-                resultItem.save();
-            }
-
-        }
-    }
 }

@@ -7,17 +7,24 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
+        android:name="com.orm.SugarApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name="com.orm.SugarApp">
-
-        <meta-data android:name="DATABASE" android:value="eifoyesh.db" />
-        <meta-data android:name="VERSION" android:value="1" />
-        <meta-data android:name="QUERY_LOG" android:value="true" />
-        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.gali.apps.eifoyesh" />
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="DATABASE"
+            android:value="eifoyesh.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="1" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="com.gali.apps.eifoyesh" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -29,9 +36,22 @@
 
         <service
             android:name=".SearchService"
-            android:exported="false"></service>
-        <!--  <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A"/>-->
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A"/>
+            android:exported="false" />
+
+        <receiver android:name=".PlugInControlReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBp--GgJR-PifaHqW47bLliMTJPTXoeh6A" />
+
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".FavoritesActivity" />
+        <activity android:name=".ListMapActivity"></activity>
     </application>
 
 </manifest>

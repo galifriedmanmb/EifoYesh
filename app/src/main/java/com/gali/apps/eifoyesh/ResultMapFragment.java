@@ -1,6 +1,7 @@
 package com.gali.apps.eifoyesh;
 
 
+import android.location.Location;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -23,7 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class ResultMapFragment extends Fragment {
 
     private View mRootView;
-    ResultItem resultItem;
+    Location location;
     //FavoritePlace favoritePlace;
 
     public ResultMapFragment() {
@@ -39,10 +40,8 @@ public class ResultMapFragment extends Fragment {
         }
         //View view = inflater.inflate(R.layout.fragment_result_map, container, false);
         if (savedInstanceState!=null) {
-            resultItem = savedInstanceState.getParcelable("resultItem");
+            location = savedInstanceState.getParcelable("location");
         }
-        final double lat = resultItem.lat;
-        final double lng = resultItem.lng;
         MapFragment mapFragment = new MapFragment();
         getFragmentManager().beginTransaction().replace(R.id.mapFragmentContainer,mapFragment).commit();
         mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -50,12 +49,15 @@ public class ResultMapFragment extends Fragment {
             public void onMapReady(GoogleMap googleMap) {
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 googleMap.getUiSettings().setZoomGesturesEnabled(true);
-                LatLng latLng = new LatLng(lat,lng);
-                CameraUpdate update= CameraUpdateFactory.newLatLngZoom(latLng, 15);
-                googleMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                googleMap.moveCamera(update);
+                if (location != null) {
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    googleMap.moveCamera(update);
+                }
             }
         });
         return mRootView;
@@ -63,7 +65,7 @@ public class ResultMapFragment extends Fragment {
 
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("resultItem",resultItem);
+        outState.putParcelable("location",location);
 
     }
 
