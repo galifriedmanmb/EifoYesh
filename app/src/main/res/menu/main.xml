@@ -3,11 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:title="@string/favorites"
-        android:id="@+id/favoritesMI" ></item>
+        android:id="@+id/favoritesMI"
+        android:icon="@drawable/favorite"
+        app:showAsAction="ifRoom"/>
     <item android:id="@+id/settingsMI"
-        android:title="@string/settings" />
+        android:title="@string/settings"
+        app:showAsAction="never"/>
     <item android:title="@string/home"
-        android:id="@+id/homeMI" />
-    <item android:title="@string/exit"
-        android:id="@+id/exitMI" ></item>
+        android:id="@+id/homeMI"
+        android:icon="@drawable/home"
+        app:showAsAction="ifRoom"/>
 </menu>

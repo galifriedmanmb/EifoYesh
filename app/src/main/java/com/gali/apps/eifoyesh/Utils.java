@@ -11,8 +11,13 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.io.ByteArrayOutputStream;
 
@@ -82,5 +87,57 @@ public class Utils {
         return BitmapFactory.decodeByteArray(decodedBytes,0,decodedBytes.length);
     }
 
+    public static void setupActionBar(final AppCompatActivity activity, boolean addBack) {
+        Toolbar toolbar = new Toolbar(activity);
 
+        AppBarLayout appBarLayout = new AppBarLayout(activity);
+        appBarLayout.addView(toolbar);
+
+//        ViewGroup.LayoutParams params = appBarLayout.getLayoutParams();
+//        if (params==null)
+//            params = new ViewGroup.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT);
+//        params.width = AppBarLayout.LayoutParams.MATCH_PARENT;
+//        appBarLayout.setLayoutParams(params);
+
+        appBarLayout.setLayoutParams(new AppBarLayout.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT));
+
+        final ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
+        final ViewGroup window = (ViewGroup) root.getChildAt(0);
+        window.addView(appBarLayout, 0);
+
+        activity.setSupportActionBar(toolbar);
+
+        // Show the Up button in the action bar.
+        if (addBack) {
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    activity.onBackPressed();
+                }
+            });
+        }
+    }
+
+    public static void setupActionBar(final AppCompatPreferenceActivity activity) {
+        Toolbar toolbar = new Toolbar(activity);
+
+        AppBarLayout appBarLayout = new AppBarLayout(activity);
+        appBarLayout.addView(toolbar);
+
+        final ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
+        final ViewGroup window = (ViewGroup) root.getChildAt(0);
+        window.addView(appBarLayout, 0);
+
+        activity.setSupportActionBar(toolbar);
+
+        // Show the Up button in the action bar.
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.onBackPressed();
+            }
+        });
+    }
 }

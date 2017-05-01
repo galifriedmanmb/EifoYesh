@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -27,7 +28,7 @@ import android.widget.Toast;
 import com.orm.SugarContext;
 
 
-public class MainActivity extends ListMapActivity implements FragmentChanger, LocationListener {
+public class MainActivity extends ListMapActivity {
 /*
     boolean smallDevice = true;
     LocationManager locationManager;
@@ -39,6 +40,9 @@ public class MainActivity extends ListMapActivity implements FragmentChanger, Lo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        //setSupportActionBar(myToolbar);
+        Utils.setupActionBar(this, false);
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         SugarContext.init(this);
 /*
