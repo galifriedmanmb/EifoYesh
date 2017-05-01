@@ -1,46 +1,24 @@
 package com.gali.apps.eifoyesh;
 
-import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.Toast;
-
-
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
-import com.squareup.picasso.Picasso;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class SearchListFragment extends PlacesListFragment{
@@ -66,18 +44,17 @@ public class SearchListFragment extends PlacesListFragment{
 
         mySearchReciever = new MySearchReciever();
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
-        mRootView.findViewById(R.id.searchByTextBtn).setOnClickListener(new View.OnClickListener() {
+        mRootView.findViewById(R.id.searchIV).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchByText();
+                Switch nearMeSwitch = (Switch)mRootView.findViewById(R.id.nearMeSwitch);
+                boolean nearMe = nearMeSwitch.isChecked();
+                if (nearMe)
+                    searchNearMe();
+                else
+                    searchByText();
             }
 
-        });
-        mRootView.findViewById(R.id.searchNearMeBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchNearMe();
-            }
         });
 
         if (savedInstanceState!=null) {
@@ -170,6 +147,11 @@ public class SearchListFragment extends PlacesListFragment{
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
         searchET.setText("");
+        Iterator<ResultItem> i = allPlaces.iterator();
+        while(i.hasNext()){
+            i.next().save();
+        }
+
     }
 
     private void searchByText() {

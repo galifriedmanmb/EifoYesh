@@ -11,8 +11,7 @@ public class FavoritesActivity extends ListMapActivity {
         setContentView(R.layout.activity_favorites);
         Utils.setupActionBar(this, true);
         setTitle(getResources().getString(R.string.favorites));
-        //Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        //setSupportActionBar(myToolbar);
+
         if (smallDevice) {
             listFragment = (FavoritesListFragment) getFragmentManager().findFragmentByTag("favoritesListFragment");
             if (listFragment == null) {

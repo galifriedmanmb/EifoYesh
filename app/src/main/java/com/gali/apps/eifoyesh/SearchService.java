@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
@@ -62,16 +64,19 @@ public class SearchService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
+            final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
+            String query = null;// text.replace(" ","+");
+            try {
+                query = URLEncoder.encode(text, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                query = text.replace(" ","+");
+            }
             if (ACTION_FIND_BY_TEXT.equals(action)) {
-                final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
-                String query = text.replace(" ","+");
                 String url = Utils.buildSearchByTextUrl(query);
                 handleActionFind(url, text, Constants.SEARCH_TYPE_TEXT);
             } else if (ACTION_FIND_NEAR_ME.equals(action)) {
-                final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
                 final double lat = intent.getDoubleExtra(EXTRA_LOCATION_LAT,0);
                 final double lng = intent.getDoubleExtra(EXTRA_LOCATION_LNG,0);
-                String query = text.replace(" ","+");
                 String url = Utils.buildSearchNearMeUrl(query,lat,lng);
                 handleActionFind(url, text, Constants.SEARCH_TYPE_NEAR_ME);
             }

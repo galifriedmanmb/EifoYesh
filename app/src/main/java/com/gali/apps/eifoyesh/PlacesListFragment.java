@@ -5,17 +5,11 @@ import android.location.Location;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import java.util.ArrayList;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class PlacesListFragment extends Fragment {
 
     protected View mRootView;
@@ -26,7 +20,7 @@ public class PlacesListFragment extends Fragment {
     Location currentLocation;
     PlacesListAdapter adapter;
 
-    int currentPosition;
+//    int currentPosition;
     FragmentChanger fragmentChanger;
 
     public PlacesListFragment() {

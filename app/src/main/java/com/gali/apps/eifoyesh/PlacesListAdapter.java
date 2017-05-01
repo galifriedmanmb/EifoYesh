@@ -46,7 +46,6 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
         return getAdapterPosition();
     }
 
-    //public SearchListAdapter(ArrayList<ResultItem> allResults, Context c, FragmnetChanger fragmnetChanger) {
     public PlacesListAdapter(Context c, FragmentChanger fragmentChanger, Location currentLocation, ArrayList<T> allPlaces) {
         this.c = c;
         this.fragmentChanger = fragmentChanger;
@@ -56,6 +55,7 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
 
     public PlacesListAdapter.PlaceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View singleview = LayoutInflater.from(c).inflate(R.layout.search_result_item, parent,false);
+//        View singleview = LayoutInflater.from(c).inflate(R.layout.test, parent,false);
         PlaceViewHolder singleResultVH = new PlaceViewHolder(singleview);
         return singleResultVH;
     }
@@ -125,10 +125,13 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
                         public void onSuccess() {
                             Bitmap bitmap = ((BitmapDrawable) iconIV.getDrawable()).getBitmap();
                             resultItem.photoEncoded = Utils.encodeToBase64(bitmap);
+                            //save the photo when it arrives
                             resultItem.save();
                         }
                         @Override
-                        public void onError() {}
+                        public void onError() {
+                            int i=0;
+                        }
                     });
                 }
             }

@@ -90,14 +90,11 @@ public class Utils {
     public static void setupActionBar(final AppCompatActivity activity, boolean addBack) {
         Toolbar toolbar = new Toolbar(activity);
 
+//        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+//        setSupportActionBar(myToolbar);
+
         AppBarLayout appBarLayout = new AppBarLayout(activity);
         appBarLayout.addView(toolbar);
-
-//        ViewGroup.LayoutParams params = appBarLayout.getLayoutParams();
-//        if (params==null)
-//            params = new ViewGroup.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT);
-//        params.width = AppBarLayout.LayoutParams.MATCH_PARENT;
-//        appBarLayout.setLayoutParams(params);
 
         appBarLayout.setLayoutParams(new AppBarLayout.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT));
 
@@ -124,6 +121,8 @@ public class Utils {
 
         AppBarLayout appBarLayout = new AppBarLayout(activity);
         appBarLayout.addView(toolbar);
+
+//        appBarLayout.setLayoutParams(new AppBarLayout.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT));
 
         final ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
         final ViewGroup window = (ViewGroup) root.getChildAt(0);

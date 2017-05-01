@@ -1,37 +1,18 @@
 package com.gali.apps.eifoyesh;
 
 
-import android.location.Location;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class FavoritesListFragment extends PlacesListFragment {
-/*
-    private View mRootView;
-    //ArrayList<ResultItem> allFavoriteItems;
-    ArrayList<FavoritePlace> allFavoritePlaces;
-    RecyclerView favoritesRV;
 
-    Location currentLocation;
-    //FavoritesListAdapter adapter;
-    PlacesListAdapter adapter;
-
-    int currentPosition;
-    FragmentChanger fragmentChanger;
-*/
     public FavoritesListFragment() {
         // Required empty public constructor
     }
@@ -41,7 +22,7 @@ public class FavoritesListFragment extends PlacesListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        layoutId = R.layout.fragment_favorites;
+        layoutId = R.layout.fragment_favorites_list;
         allPlaces = (ArrayList<FavoritePlace>) FavoritePlace.listAll(FavoritePlace.class);
         mRootView = super.onCreateView(inflater,container,savedInstanceState);
         return mRootView;

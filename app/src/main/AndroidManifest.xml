@@ -50,7 +50,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A" />
+            android:value="AIzaSyBp--GgJR-PifaHqW47bLliMTJPTXoeh6A" />
 
         <activity android:name=".SettingsActivity" />
         <activity android:name=".FavoritesActivity" />

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gali.apps.eifoyesh.MainActivity">
+    tools:context="com.gali.apps.eifoyesh.MainActivity"
+    android:orientation="vertical">
     <!--
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -21,4 +22,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/fragmentContainer"></LinearLayout>
-</RelativeLayout>
+</LinearLayout>

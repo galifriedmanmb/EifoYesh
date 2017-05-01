@@ -20,6 +20,22 @@
             android:layout_height="wrap_content"
             android:id="@+id/searchLinearLayout">
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:ems="10"
+                    android:id="@+id/searchET"
+
+                    android:hint="@string/search" />
+            </android.support.design.widget.TextInputLayout>
+<!--
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -28,21 +44,54 @@
                 android:id="@+id/searchET"
                 android:layout_weight="1"
                 android:hint="@string/search" />
+-->
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal">
 
+                <TextView
+                    android:text="@string/searchNearMe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView"
+                    android:layout_margin="5dp" />
+
+                <Switch
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/nearMeSwitch"
+                    android:checked="true"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:gravity="left"
+                    android:layout_gravity="left" />
+            </LinearLayout>
+
+            <!--
             <Button
                 android:text="@string/searchNearMe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/searchNearMeBtn"
                 android:layout_weight="1" />
-
-            <Button
+-->
+            <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/searchByTextBtn"
-                android:layout_weight="1"
-                android:text="@string/searchByText" />
-
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/search"
+                android:id="@+id/searchIV"
+                android:padding="10dp"
+                android:layout_gravity="right" />
+            <!--
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/searchByTextBtn"
+                            android:layout_weight="1"
+                            android:text="@string/searchByText" />
+            -->
         </LinearLayout>
 
         <com.gali.apps.eifoyesh.ContextMenuRecyclerView
