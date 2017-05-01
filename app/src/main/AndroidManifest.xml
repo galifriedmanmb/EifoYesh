@@ -41,11 +41,20 @@
             android:name=".SearchService"
             android:exported="false" />
 
+        <receiver android:name=".PlugInControlReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A" />
 
-        <activity android:name="FavoritesActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".FavoritesActivity" />
+        <activity android:name=".ListMapActivity" />
     </application>
 
 </manifest>
