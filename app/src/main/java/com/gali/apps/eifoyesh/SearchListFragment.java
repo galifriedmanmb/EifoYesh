@@ -13,9 +13,17 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,6 +34,9 @@ public class SearchListFragment extends PlacesListFragment{
     MySearchReciever mySearchReciever;
     SharedPreferences prefs;
     EditText searchET;
+    Switch nearMeSwitch;
+    SeekBar radiusSeekbar;
+    LinearLayout radiusLayout;
 
     boolean first = true;
 
@@ -44,10 +55,16 @@ public class SearchListFragment extends PlacesListFragment{
 
         mySearchReciever = new MySearchReciever();
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
+        searchET.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((EditText)v).setText("");
+            }
+        });
+        nearMeSwitch = (Switch)mRootView.findViewById(R.id.nearMeSwitch);
         mRootView.findViewById(R.id.searchIV).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Switch nearMeSwitch = (Switch)mRootView.findViewById(R.id.nearMeSwitch);
                 boolean nearMe = nearMeSwitch.isChecked();
                 if (nearMe)
                     searchNearMe();
@@ -56,6 +73,40 @@ public class SearchListFragment extends PlacesListFragment{
             }
 
         });
+
+        radiusLayout = (LinearLayout)mRootView.findViewById(R.id.radiusLayout);
+        nearMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    radiusLayout.setVisibility(LinearLayout.VISIBLE);
+                else
+                    radiusLayout.setVisibility(LinearLayout.GONE);
+            }
+        });
+
+        int radius = prefs.getInt(Constants.PREF_RADIUS, 1);
+        radiusSeekbar = (SeekBar) mRootView.findViewById(R.id.radiusSeekBar);
+        radiusSeekbar.setMax(20);
+        final TextView minTV = (TextView) mRootView.findViewById(R.id.minTV);
+        TextView maxTV = (TextView) mRootView.findViewById(R.id.maxTV);
+        minTV.setText(""+radius);
+        maxTV.setText(""+20);
+        radiusSeekbar.setProgress(radius);
+        radiusSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                minTV.setText(""+progress);
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                prefs.edit().putInt(Constants.PREF_RADIUS,seekBar.getProgress()).commit();
+                searchNearMe();
+            }
+        });
+
 
         if (savedInstanceState!=null) {
            first = savedInstanceState.getBoolean("first");
@@ -88,6 +139,8 @@ public class SearchListFragment extends PlacesListFragment{
         first = false;
         return mRootView;
     }
+
+
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -146,7 +199,7 @@ public class SearchListFragment extends PlacesListFragment{
     private void saveLastSearch(String search, int type) {
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
-        searchET.setText("");
+        //searchET.setText("");
         Iterator<ResultItem> i = allPlaces.iterator();
         while(i.hasNext()){
             i.next().save();
@@ -160,7 +213,10 @@ public class SearchListFragment extends PlacesListFragment{
             return;
         }
         String search = searchET.getText().toString();
-        SearchService.startActionFindByText(getActivity(), search, currentLocation);
+        if (search.length()>0)
+            SearchService.startActionFindByText(getActivity(), search, currentLocation);
+        else
+            Toast.makeText(getActivity(), getResources().getString(R.string.enterValueToSearch), Toast.LENGTH_SHORT).show();
     }
 
     private void searchNearMe() {
@@ -169,11 +225,15 @@ public class SearchListFragment extends PlacesListFragment{
             return;
         }
         String search = searchET.getText().toString();
-        try {
-            SearchService.startActionFindNearMe(getActivity(), search, currentLocation);
-        } catch (NullLocationException nle) {
-            Toast.makeText(getActivity(), getResources().getString(R.string.currentLocationUnknown), Toast.LENGTH_SHORT).show();
-        }
+        if (search.length()>0) {
+            try {
+                SearchService.startActionFindNearMe(getActivity(), search, currentLocation, prefs.getInt(Constants.PREF_RADIUS,1), prefs.getString("distance_units", Constants.SHARED_PREFERENCES_UNIT_KM));
+            } catch (NullLocationException nle) {
+                Toast.makeText(getActivity(), getResources().getString(R.string.currentLocationUnknown), Toast.LENGTH_SHORT).show();
+            }
+        } else
+            Toast.makeText(getActivity(), getResources().getString(R.string.enterValueToSearch), Toast.LENGTH_SHORT).show();
+
     }
 
 

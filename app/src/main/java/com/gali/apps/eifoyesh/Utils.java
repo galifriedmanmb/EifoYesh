@@ -3,9 +3,11 @@ package com.gali.apps.eifoyesh;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -62,8 +64,9 @@ public class Utils {
         return "https://maps.googleapis.com/maps/api/place/textsearch/json?query="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
     }
 
-    public static String buildSearchNearMeUrl(String query, double lat, double lng) {
-        return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius=500&keyword="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
+    public static String buildSearchNearMeUrl(String query, double lat, double lng, int radius, String unit) {
+        int radiusInMeters = getRadiusInMeters(radius,unit);
+        return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius="+radiusInMeters+"&keyword="+query+"&key="+Constants.GOOGLE_PLACES_API_KEY;
     }
 
     public static String buildPhotoUrl(String photoreference) {
@@ -89,6 +92,7 @@ public class Utils {
 
     public static void setupActionBar(final AppCompatActivity activity, boolean addBack) {
         Toolbar toolbar = new Toolbar(activity);
+        toolbar.setBackgroundColor(Color.parseColor("#f4b942"));
 
 //        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
 //        setSupportActionBar(myToolbar);
@@ -118,6 +122,7 @@ public class Utils {
 
     public static void setupActionBar(final AppCompatPreferenceActivity activity) {
         Toolbar toolbar = new Toolbar(activity);
+        toolbar.setBackgroundColor(Color.parseColor("#f4b942"));
 
         AppBarLayout appBarLayout = new AppBarLayout(activity);
         appBarLayout.addView(toolbar);
@@ -138,5 +143,13 @@ public class Utils {
                 activity.onBackPressed();
             }
         });
+    }
+
+    private static int getRadiusInMeters (int radius, String unit) {
+        if (unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM))
+            return radius * 1000;
+        else
+            return (int)(radius * 1000 * 1.61);
+
     }
 }

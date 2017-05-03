@@ -36,6 +36,9 @@ public class SearchService extends IntentService {
     private static final String EXTRA_PIC_MAX_HEIGHT = "com.gali.apps.eifoyesh.extra.PIC_MAX_HEIGHT";
     private static final String EXTRA_LOCATION_LAT = "com.gali.apps.eifoyesh.extra.LOCATION_LAT";
     private static final String EXTRA_LOCATION_LNG = "com.gali.apps.eifoyesh.extra.LOCATION_LNG";
+    private static final String EXTRA_RADIUS = "com.gali.apps.eifoyesh.extra.EXTRA_RADIUS";
+    private static final String EXTRA_UNIT = "com.gali.apps.eifoyesh.extra.EXTRA_UNIT";
+
 
     public SearchService() {
         super("SearchService");
@@ -48,7 +51,7 @@ public class SearchService extends IntentService {
         context.startService(intent);
     }
 
-    public static void startActionFindNearMe(Context context, String text, Location location) throws NullLocationException {
+    public static void startActionFindNearMe(Context context, String text, Location location, int radius, String unit) throws NullLocationException {
         if (location==null)
             throw new NullLocationException();
         Intent intent = new Intent(context, SearchService.class);
@@ -56,6 +59,8 @@ public class SearchService extends IntentService {
         intent.putExtra(EXTRA_SEARCH_TEXT, text);
         intent.putExtra(EXTRA_LOCATION_LAT, location.getLatitude());
         intent.putExtra(EXTRA_LOCATION_LNG, location.getLongitude());
+        intent.putExtra(EXTRA_RADIUS, radius);
+        intent.putExtra(EXTRA_UNIT, unit);
 
         context.startService(intent);
     }
@@ -77,14 +82,16 @@ public class SearchService extends IntentService {
             } else if (ACTION_FIND_NEAR_ME.equals(action)) {
                 final double lat = intent.getDoubleExtra(EXTRA_LOCATION_LAT,0);
                 final double lng = intent.getDoubleExtra(EXTRA_LOCATION_LNG,0);
-                String url = Utils.buildSearchNearMeUrl(query,lat,lng);
+                final int radius = intent.getIntExtra(EXTRA_RADIUS,0);
+                final String unit = intent.getStringExtra(EXTRA_UNIT);
+                String url = Utils.buildSearchNearMeUrl(query,lat,lng,radius,unit);
                 handleActionFind(url, text, Constants.SEARCH_TYPE_NEAR_ME);
             }
         }
     }
 
     private void handleActionFind(String url, String text, int type) {
-//Log.d("****************url: ",url);
+Log.d("****************url: ",url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)

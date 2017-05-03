@@ -9,6 +9,7 @@
     <string name="currentLocationUnknown">current location is unknown</string>
     <string name="noInternetConnectionMsg">no internet connection</string>
     <string name="placeAlreadyInFavorites">Place is already in favorites</string>
+    <string name="enterValueToSearch">Please enter a value to search</string>
     <string name="settings">settings</string>
     <string name="title_display">display</string>
     <string name="exitKey">exit</string>

@@ -15,6 +15,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
@@ -53,7 +54,7 @@ public class ResultMapFragment extends Fragment {
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
 
-                    googleMap.addMarker(new MarkerOptions()
+                    Marker marker = googleMap.addMarker(new MarkerOptions()
                             .position(latLng)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                     googleMap.moveCamera(update);

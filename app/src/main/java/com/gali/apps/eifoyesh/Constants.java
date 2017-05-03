@@ -17,6 +17,7 @@ public class Constants {
     //public static final String GOOGLE_PLACES_API_KEY3 = "AIzaSyCgRHv2hyJ5NBHQAwv7VNcIaifRRzysTRw";
     public static final String PREF_LAST_SEARCH = "last_search";
     public static final String PREF_LAST_SEARCH_TYPE = "last_search_type";
+    public static final String PREF_RADIUS = "radius";
 
     public static final int SEARCH_TYPE_TEXT = 0;
     public static final int SEARCH_TYPE_NEAR_ME = 1;
