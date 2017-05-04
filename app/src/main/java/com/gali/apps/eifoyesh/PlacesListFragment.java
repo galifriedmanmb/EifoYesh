@@ -17,7 +17,7 @@ public class PlacesListFragment extends Fragment {
     ArrayList allPlaces;
     ContextMenuRecyclerView placesRV;
 
-    Location currentLocation;
+    private Location currentLocation;
     PlacesListAdapter adapter;
 
 //    int currentPosition;
@@ -47,6 +47,8 @@ public class PlacesListFragment extends Fragment {
             ArrayList<ResultItem> newResults = savedInstanceState.getParcelableArrayList("allPlaces");
             allPlaces.clear();
             allPlaces.addAll(newResults);
+            currentLocation = savedInstanceState.getParcelable("location");
+            adapter.setCurrentLocation(currentLocation);
             adapter.notifyDataSetChanged();
         }
         return mRootView;
@@ -55,8 +57,19 @@ public class PlacesListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putParcelable("location",currentLocation);
         outState.putParcelableArrayList("allPlaces",allPlaces);
     }
 
+    public void setCurrentLocation (Location currentLocation) {
+        this.currentLocation = currentLocation;
+        if (adapter!=null)
+            adapter.setCurrentLocation(currentLocation);
+    }
+
+
+    public Location getCurrentLocation () {
+        return currentLocation;
+    }
 
 }

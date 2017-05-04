@@ -18,6 +18,7 @@ public class Constants {
     public static final String PREF_LAST_SEARCH = "last_search";
     public static final String PREF_LAST_SEARCH_TYPE = "last_search_type";
     public static final String PREF_RADIUS = "radius";
+    public static final String PREF_FIRST = "first";
 
     public static final int SEARCH_TYPE_TEXT = 0;
     public static final int SEARCH_TYPE_NEAR_ME = 1;

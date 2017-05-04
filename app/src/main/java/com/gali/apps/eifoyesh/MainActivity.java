@@ -33,7 +33,11 @@ public class MainActivity extends ListMapActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Utils.setupActionBar(this, false);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //Utils.setupActionBar(this, false);
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         SugarContext.init(this);
 
@@ -45,7 +49,7 @@ public class MainActivity extends ListMapActivity {
             if (listFragment == null) {
                 listFragment = new SearchListFragment();
                 //listFragment.layoutId = R.layout.fragment_search_list;
-                listFragment.currentLocation = currentLocation;
+                listFragment.setCurrentLocation(currentLocation);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainer, listFragment, "listFragment");
                 transaction.commit();
@@ -55,7 +59,7 @@ public class MainActivity extends ListMapActivity {
             if (listFragment == null) {
                 listFragment = new SearchListFragment();
                 //listFragment.layoutId = R.layout.fragment_search_list;
-                listFragment.currentLocation = currentLocation;
+                listFragment.setCurrentLocation(currentLocation);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainerList, listFragment, "listFragment");
                 transaction.commit();
@@ -63,7 +67,7 @@ public class MainActivity extends ListMapActivity {
             mapFragment = (ResultMapFragment) getFragmentManager().findFragmentByTag("mapFragment");
             if (mapFragment == null) {
                 mapFragment = new ResultMapFragment();
-                mapFragment.location = currentLocation;
+                mapFragment.setCurrentLocation(currentLocation);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainerMap, mapFragment, "mapFragment");
                 transaction.commit();

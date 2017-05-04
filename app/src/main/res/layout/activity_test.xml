@@ -5,8 +5,8 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gali.apps.eifoyesh.MainActivity"
-    android:baselineAligned="false">
+    tools:context="com.gali.apps.eifoyesh.TestActivity"
+    android:orientation="vertical">
     <!--
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -16,7 +16,7 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
--->
+        -->
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,30 +26,9 @@
         android:id="@+id/toolbar" />
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="3"
-        android:layout_below="@+id/toolbar"
-        >
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/fragmentContainerList"
-            android:layout_weight="2">
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/fragmentContainerMap"
-            android:layout_weight="1"></LinearLayout>
-
-    </LinearLayout>
-
-
+        android:id="@+id/fragmentContainer"
+        android:layout_below="@+id/toolbar"></LinearLayout>
 </RelativeLayout>

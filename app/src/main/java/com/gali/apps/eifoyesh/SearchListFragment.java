@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,7 +39,7 @@ public class SearchListFragment extends PlacesListFragment{
     SeekBar radiusSeekbar;
     LinearLayout radiusLayout;
 
-    boolean first = true;
+    //boolean first = true;
 
     public SearchListFragment() {
         // Required empty public constructor
@@ -65,6 +66,10 @@ public class SearchListFragment extends PlacesListFragment{
         mRootView.findViewById(R.id.searchIV).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //get rid of virtual keyboard
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getView().getRootView().getWindowToken(), 0);
+
                 boolean nearMe = nearMeSwitch.isChecked();
                 if (nearMe)
                     searchNearMe();
@@ -109,7 +114,7 @@ public class SearchListFragment extends PlacesListFragment{
 
 
         if (savedInstanceState!=null) {
-           first = savedInstanceState.getBoolean("first");
+           //first = savedInstanceState.getBoolean("first");
         } else {
             if (!Utils.isConnected(getActivity())) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
@@ -120,23 +125,27 @@ public class SearchListFragment extends PlacesListFragment{
                 adapter.notifyDataSetChanged();
 
             } else {
+                boolean first = prefs.getBoolean(Constants.PREF_FIRST,true);
                 if (first) {
                     //run last search
                     String lastSearch = prefs.getString(Constants.PREF_LAST_SEARCH, null);
                     int lastSearchType = prefs.getInt(Constants.PREF_LAST_SEARCH_TYPE, -1);
                     if (lastSearch != null) {
                         searchET.setText(lastSearch);
-                        if (lastSearchType == Constants.SEARCH_TYPE_TEXT)
+                        if (lastSearchType == Constants.SEARCH_TYPE_TEXT) {
+                            nearMeSwitch.setChecked(false);
                             searchByText();
-                        else
+                        } else {
                             searchNearMe();
+                        }
                     }
                 }
 
             }
 
         }
-        first = false;
+        prefs.edit().putBoolean(Constants.PREF_FIRST,false).commit();
+        //first = false;
         return mRootView;
     }
 
@@ -200,6 +209,10 @@ public class SearchListFragment extends PlacesListFragment{
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
         //searchET.setText("");
+
+        //delete all historySearch from db
+        ResultItem.deleteAll(ResultItem.class);
+
         Iterator<ResultItem> i = allPlaces.iterator();
         while(i.hasNext()){
             i.next().save();
@@ -214,7 +227,7 @@ public class SearchListFragment extends PlacesListFragment{
         }
         String search = searchET.getText().toString();
         if (search.length()>0)
-            SearchService.startActionFindByText(getActivity(), search, currentLocation);
+            SearchService.startActionFindByText(getActivity(), search, getCurrentLocation());
         else
             Toast.makeText(getActivity(), getResources().getString(R.string.enterValueToSearch), Toast.LENGTH_SHORT).show();
     }
@@ -227,7 +240,7 @@ public class SearchListFragment extends PlacesListFragment{
         String search = searchET.getText().toString();
         if (search.length()>0) {
             try {
-                SearchService.startActionFindNearMe(getActivity(), search, currentLocation, prefs.getInt(Constants.PREF_RADIUS,1), prefs.getString("distance_units", Constants.SHARED_PREFERENCES_UNIT_KM));
+                SearchService.startActionFindNearMe(getActivity(), search, getCurrentLocation(), prefs.getInt(Constants.PREF_RADIUS,1), prefs.getString("distance_units", Constants.SHARED_PREFERENCES_UNIT_KM));
             } catch (NullLocationException nle) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.currentLocationUnknown), Toast.LENGTH_SHORT).show();
             }
@@ -247,8 +260,7 @@ public class SearchListFragment extends PlacesListFragment{
                     status = status+": "+error;
                 Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
             }
-            //delete all historySearch from db
-            ResultItem.deleteAll(ResultItem.class);
+
 
             ArrayList<ResultItem> newResults  = intent.getParcelableArrayListExtra("allresults");
             allPlaces.clear();
@@ -266,7 +278,7 @@ public class SearchListFragment extends PlacesListFragment{
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //outState.putParcelableArrayList("allPlaces",allPlaces);
-        outState.putBoolean("first",first);
+        //outState.putBoolean("first",first);
 
     }
 

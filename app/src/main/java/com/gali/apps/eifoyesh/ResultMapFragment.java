@@ -4,6 +4,7 @@ package com.gali.apps.eifoyesh;
 import android.location.Location;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class ResultMapFragment extends Fragment {
 
     private View mRootView;
-    Location location;
+    private Location location;
     //FavoritePlace favoritePlace;
 
     public ResultMapFragment() {
@@ -39,7 +40,10 @@ public class ResultMapFragment extends Fragment {
         if(mRootView==null){
             mRootView = inflater.inflate(R.layout.fragment_result_map, container, false);
         }
-        //View view = inflater.inflate(R.layout.fragment_result_map, container, false);
+
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle(getResources().getString(R.string.user_name));
+
         if (savedInstanceState!=null) {
             location = savedInstanceState.getParcelable("location");
         }
@@ -67,7 +71,11 @@ public class ResultMapFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("location",location);
+    }
 
+
+    public void setCurrentLocation (Location currentLocation) {
+        this.location = currentLocation;
     }
 
 }

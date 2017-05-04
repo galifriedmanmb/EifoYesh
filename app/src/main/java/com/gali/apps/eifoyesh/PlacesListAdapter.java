@@ -38,7 +38,7 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
 
     Context c;
     FragmentChanger fragmentChanger;
-    Location currentLocation;
+    private Location currentLocation;
     ArrayList<T> allPlaces;
     int type;
 
@@ -70,6 +70,10 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
         holder.bindData(resultItem);
     }
 
+    public void setCurrentLocation (Location currentLocation) {
+        this.currentLocation = currentLocation;
+    }
+
     class PlaceViewHolder extends RecyclerView.ViewHolder {
 
         TextView nameTV;
@@ -94,7 +98,7 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
             public void bindData (final ResultItem resultItem) {
                 nameTV.setText(resultItem.name);
                 addressTV.setText(resultItem.address);
-                numberTV.setText("" + resultItem.number);
+                //numberTV.setText("" + (resultItem.number+1));
 
                 if (currentLocation != null) {
                     //String unit = prefs.getString(Constants.SHARED_PREFERENCES_UNIT, Constants.SHARED_PREFERENCES_UNIT_KM);
@@ -138,5 +142,7 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
 
 
         }
+
+
 
 }

@@ -104,7 +104,7 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
             Location location = new Location("");
             location.setLatitude(resultItem.lat);
             location.setLongitude(resultItem.lng);
-            mapFragment.location = location;
+            mapFragment.setCurrentLocation(location);
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             if (smallDevice) {
@@ -130,6 +130,11 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
+            case R.id.testMI:
+                Intent testIntent = new Intent(this,TestActivity.class);
+                startActivity(testIntent);
+                break;
             case R.id.settingsMI:
                 Intent settingsIntent = new Intent(this,SettingsActivity.class);
                 startActivity(settingsIntent);
@@ -182,9 +187,9 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
     public void onLocationChanged(Location location) {
         currentLocation=location;
         if (listFragment!=null)
-            listFragment.currentLocation = currentLocation;
+            listFragment.setCurrentLocation(currentLocation);
         if (mapFragment!=null)
-            mapFragment.location = currentLocation;
+            mapFragment.setCurrentLocation(currentLocation);
     }
 
     @Override

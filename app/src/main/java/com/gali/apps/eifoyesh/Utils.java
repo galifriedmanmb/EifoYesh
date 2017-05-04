@@ -40,7 +40,6 @@ public class Utils {
     }
 
 
-
     public static double getDistance(double lat1, double lng1, double lat2, double lng2, String unit) {
         int r = 6371; // average radius of the earth in km
         double dLat = Math.toRadians(lat2 - lat1);
@@ -50,10 +49,11 @@ public class Utils {
                         * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double d = r * c;
-        if (unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM))
+        if (unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM)) {
             return d;
-        else
-            return d/1.61;
+        } else {
+            return d / 1.61;
+        }
     }
 
     public static String buildPlaceUrl(ResultItem place) {
@@ -90,39 +90,17 @@ public class Utils {
         return BitmapFactory.decodeByteArray(decodedBytes,0,decodedBytes.length);
     }
 
-    public static void setupActionBar(final AppCompatActivity activity, boolean addBack) {
-        Toolbar toolbar = new Toolbar(activity);
-        toolbar.setBackgroundColor(Color.parseColor("#f4b942"));
-
-//        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-//        setSupportActionBar(myToolbar);
-
-        AppBarLayout appBarLayout = new AppBarLayout(activity);
-        appBarLayout.addView(toolbar);
-
-        appBarLayout.setLayoutParams(new AppBarLayout.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT));
-
-        final ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
-        final ViewGroup window = (ViewGroup) root.getChildAt(0);
-        window.addView(appBarLayout, 0);
-
-        activity.setSupportActionBar(toolbar);
-
-        // Show the Up button in the action bar.
-        if (addBack) {
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    activity.onBackPressed();
-                }
-            });
-        }
+    private static int getRadiusInMeters (int radius, String unit) {
+        if (unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM))
+            return radius * 1000;
+        else
+            return (int)(radius * 1000 * 1.61);
     }
 
     public static void setupActionBar(final AppCompatPreferenceActivity activity) {
         Toolbar toolbar = new Toolbar(activity);
-        toolbar.setBackgroundColor(Color.parseColor("#f4b942"));
+        toolbar.setBackgroundColor(activity.getResources().getColor(R.color.toolbar));
+
 
         AppBarLayout appBarLayout = new AppBarLayout(activity);
         appBarLayout.addView(toolbar);
@@ -145,11 +123,5 @@ public class Utils {
         });
     }
 
-    private static int getRadiusInMeters (int radius, String unit) {
-        if (unit.equals(Constants.SHARED_PREFERENCES_UNIT_KM))
-            return radius * 1000;
-        else
-            return (int)(radius * 1000 * 1.61);
 
-    }
 }

@@ -47,7 +47,7 @@ public class FavoritesListFragment extends PlacesListFragment {
                 place.delete();
                 Toast.makeText(getActivity(), getResources().getString(R.string.favoriteDeleted), Toast.LENGTH_SHORT).show();
                 allPlaces = (ArrayList<FavoritePlace>) FavoritePlace.listAll(FavoritePlace.class);
-                adapter = new PlacesListAdapter(getActivity(), fragmentChanger, currentLocation, allPlaces);
+                adapter = new PlacesListAdapter(getActivity(), fragmentChanger, getCurrentLocation(), allPlaces);
                 placesRV.setAdapter(adapter);
                 break;
         }
