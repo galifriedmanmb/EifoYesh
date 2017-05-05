@@ -37,12 +37,8 @@ public class MainActivity extends ListMapActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Utils.setupActionBar(this, false);
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         SugarContext.init(this);
-
-//        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-//        setSupportActionBar(myToolbar);
 
         if (smallDevice) {
             listFragment = (SearchListFragment) getFragmentManager().findFragmentByTag("listFragment");

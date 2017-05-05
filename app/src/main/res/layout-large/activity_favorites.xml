@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_favorites"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-    tools:context="com.gali.apps.eifoyesh.FavoritesActivity"
-    android:orientation="vertical"
-    android:weightSum="2">
+    tools:context="com.gali.apps.eifoyesh.FavoritesActivity">
 
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
@@ -21,7 +19,6 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         android:weightSum="2"
         android:layout_below="@+id/toolbar">
 
@@ -30,14 +27,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/fragmentContainerList"
-            android:layout_weight="1"></LinearLayout>
+            android:layout_weight="1"
+            android:padding="10dp">
+
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/fragmentContainerMap"
-            android:layout_weight="1"></LinearLayout>
+            android:layout_weight="1"
+            android:padding="10dp"></LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

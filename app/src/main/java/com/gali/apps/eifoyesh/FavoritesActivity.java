@@ -14,6 +14,7 @@ public class FavoritesActivity extends ListMapActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -22,7 +23,6 @@ public class FavoritesActivity extends ListMapActivity {
             }
         });
 
-        //Utils.setupActionBar(this, true);
         setTitle(getResources().getString(R.string.favorites));
 
         if (smallDevice) {
@@ -45,14 +45,15 @@ public class FavoritesActivity extends ListMapActivity {
                 transaction.replace(R.id.fragmentContainerList, listFragment, "favoritesListFragment");
                 transaction.commit();
             }
-            mapFragment = (ResultMapFragment) getFragmentManager().findFragmentByTag("favoritesMapFragment");
+            mapFragment = (ResultMapFragment) getFragmentManager().findFragmentByTag("mapFragment");
             if (mapFragment == null) {
                 mapFragment = new ResultMapFragment();
                 mapFragment.setCurrentLocation(currentLocation);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragmentContainerMap, mapFragment, "favoritesMapFragment");
+                transaction.replace(R.id.fragmentContainerMap, mapFragment, "mapFragment");
                 transaction.commit();
             }
+
         }
     }
 }

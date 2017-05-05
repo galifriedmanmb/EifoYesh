@@ -22,12 +22,14 @@ public class ResultItem extends SugarRecord implements Parcelable {
     String distanceUnit;
     String iconUrl;
     String placeId;
+    double rating;
+    String phone;
+    String website;
     String photoEncoded;
 
     public ResultItem() {
-
     }
-
+/*
     public ResultItem(String name, String address, double lat, double lng, int number, int distance, String distanceUnit, String iconUrl, String placeId) {
         this.name = name;
         this.address = address;
@@ -40,7 +42,7 @@ public class ResultItem extends SugarRecord implements Parcelable {
         this.placeId = placeId;
 
     }
-
+*/
     public ResultItem(String name, String address, int number, String placeId, String iconUrl, double lat, double lng) {
         this.name = name;
         this.address = address;
@@ -49,7 +51,13 @@ public class ResultItem extends SugarRecord implements Parcelable {
         this.placeId = placeId;
         this.lat = lat;
         this.lng = lng;
+    }
 
+    public ResultItem(String address, String phone, String website, double rating) {
+        this.address = address;
+        this.phone = phone;
+        this.website = website;
+        this.rating = rating;
     }
 
 
@@ -63,6 +71,9 @@ public class ResultItem extends SugarRecord implements Parcelable {
         distanceUnit = in.readString();
         iconUrl = in.readString();
         placeId = in.readString();
+        rating = in.readDouble();
+        phone = in.readString();
+        website = in.readString();
         photoEncoded = in.readString();
     }
 
@@ -94,6 +105,9 @@ public class ResultItem extends SugarRecord implements Parcelable {
         dest.writeString(distanceUnit);
         dest.writeString(iconUrl);
         dest.writeString(placeId);
+        dest.writeDouble(rating);
+        dest.writeString(phone);
+        dest.writeString(website);
         dest.writeString(photoEncoded);
     }
 }

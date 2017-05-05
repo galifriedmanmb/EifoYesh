@@ -45,11 +45,13 @@ public class PlacesListFragment extends Fragment {
 
         if (savedInstanceState!=null) {
             ArrayList<ResultItem> newResults = savedInstanceState.getParcelableArrayList("allPlaces");
-            allPlaces.clear();
-            allPlaces.addAll(newResults);
-            currentLocation = savedInstanceState.getParcelable("location");
-            adapter.setCurrentLocation(currentLocation);
-            adapter.notifyDataSetChanged();
+            if (newResults!=null) {
+                allPlaces.clear();
+                allPlaces.addAll(newResults);
+                currentLocation = savedInstanceState.getParcelable("location");
+                adapter.setCurrentLocation(currentLocation);
+                adapter.notifyDataSetChanged();
+            }
         }
         return mRootView;
     }

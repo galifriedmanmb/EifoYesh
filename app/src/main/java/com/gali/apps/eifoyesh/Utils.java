@@ -3,6 +3,7 @@ package com.gali.apps.eifoyesh;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,8 +21,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * Created by 1 on 4/23/2017.
@@ -73,6 +76,11 @@ public class Utils {
         return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + Constants.PIC_MAX_WIDTH + "&photoreference=" + photoreference + "&key=" + Constants.GOOGLE_PLACES_API_KEY;
     }
 
+    public static String buildGetPlaceDetailsUrl(String placeId) {
+        return "https://maps.googleapis.com/maps/api/place/details/json?placeid="+placeId+"&key="+Constants.GOOGLE_PLACES_API_KEY;
+    }
+
+
     public static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         image.compress(compressFormat, quality, byteArrayOutputStream);
@@ -123,5 +131,30 @@ public class Utils {
         });
     }
 
+    public static void addToFavorites(ResultItem place, Context context) {
+        List<FavoritePlace> favorites = FavoritePlace.listAll(FavoritePlace.class);
 
+        for (int i = 0; i < favorites.size() ; i++) {
+            FavoritePlace favorite = favorites.get(i);
+            if (favorite.placeId.equals(place.placeId)) {
+                Toast.makeText(context,context.getResources().getText(R.string.placeAlreadyInFavorites).toString() , Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        FavoritePlace favoritePlace = new FavoritePlace(place);
+        favoritePlace.save();
+        Toast.makeText(context, context.getResources().getString(R.string.favoriteAdded), Toast.LENGTH_SHORT).show();
+    }
+
+    //to share place details
+    public static Intent createShareIntent(ResultItem place, Context context) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+
+        //send a link to place
+        String urlPlace = Utils.buildPlaceUrl(place);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, context.getResources().getString(R.string.sharePlaceMessage)+"\n"+ urlPlace);
+        return shareIntent;
+    }
 }

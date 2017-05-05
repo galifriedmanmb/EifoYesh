@@ -58,7 +58,6 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".FavoritesActivity" />
         <activity android:name=".ListMapActivity" />
-        <activity android:name=".TestActivity"></activity>
     </application>
 
 </manifest>

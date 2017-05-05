@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">EifoYesh</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="searchByText">by text</string>
     <string name="searchNearMe">near me</string>
     <string name="search">search...</string>
@@ -37,25 +36,5 @@
     <string name="powerConnected">power is connected</string>
     <string name="powerDisconnected">power is disconnected</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <!--
-        <string name="title_checkbox_preference">title_checkbox_preference</string>
-        <string name="default_checkbox_preference">default_checkbox_preference</string>
-        <string name="title_edittext_preference">title_edittext_preference</string>
-        <string name="summary_edittext_preference">summary_edittext_preference</string>
-        <string name="dialog_title_edittext_preference">dialog_title_edittext_preference</string>
-        <string name="title_second_section">title_second_section</string>
-        <string name="entries_list_preference">entries_list_preference</string>
-        <string name="title_intent_preference">title_intent_preference</string>
-    -->
-
-
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="text_content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin consectetur diam id aliquam scelerisque. Donec ultrices lacus vel </string>
-
-    <string name="user_name">Pawan Deshpnde</string>
 
 </resources>

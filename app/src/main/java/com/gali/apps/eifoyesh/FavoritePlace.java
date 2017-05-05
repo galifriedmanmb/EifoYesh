@@ -18,6 +18,7 @@ public class FavoritePlace extends ResultItem {
         this.distanceUnit = resultItem.distanceUnit;
         this.iconUrl = resultItem.iconUrl;
         this.placeId = resultItem.placeId;
+        this.rating = resultItem.rating;
 
 
     }

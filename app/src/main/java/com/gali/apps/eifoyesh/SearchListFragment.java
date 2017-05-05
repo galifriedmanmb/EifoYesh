@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import okhttp3.internal.Util;
+
 public class SearchListFragment extends PlacesListFragment{
 
     MySearchReciever mySearchReciever;
@@ -168,17 +170,18 @@ public class SearchListFragment extends PlacesListFragment{
         ResultItem place = (ResultItem)allPlaces.get(info.position);
         switch (item.getItemId()) {
             case R.id.addToFavoritesMI:
-                addToFavorites(place);
-                Toast.makeText(getActivity(), getResources().getString(R.string.favoriteAdded), Toast.LENGTH_SHORT).show();
+                //addToFavorites(place);
+                Utils.addToFavorites(place,getActivity());
                 break;
             case R.id.shareMI:
-                startActivity(createShareIntent(place));
+                //startActivity(createShareIntent(place));
+                startActivity(Utils.createShareIntent(place,getActivity()));
                 break;
         }
         return  true;
     }
 
-
+/*
     //to share place details
     private Intent createShareIntent(ResultItem place) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -190,7 +193,8 @@ public class SearchListFragment extends PlacesListFragment{
         shareIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.sharePlaceMessage)+"\n"+ urlPlace);
         return shareIntent;
     }
-
+*/
+/*
     private void addToFavorites(ResultItem place) {
         List<FavoritePlace> favorites = FavoritePlace.listAll(FavoritePlace.class);
 
@@ -204,7 +208,7 @@ public class SearchListFragment extends PlacesListFragment{
         FavoritePlace favoritePlace = new FavoritePlace(place);
         favoritePlace.save();
     }
-
+*/
     private void saveLastSearch(String search, int type) {
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
