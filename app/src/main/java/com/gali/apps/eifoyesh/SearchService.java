@@ -211,8 +211,8 @@ Log.d("****************url: ",url);
                     address = result.getString("formatted_address");
 
                 String phone = null;
-                if (result.has("formatted_phone_number"))
-                    phone = result.getString("formatted_phone_number");
+                if (result.has("international_phone_number"))
+                    phone = result.getString("international_phone_number");
 
                 String website = null;
                 if (result.has("website"))

@@ -1,5 +1,6 @@
 package com.gali.apps.eifoyesh;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -39,7 +41,7 @@ public class SearchListFragment extends PlacesListFragment{
     EditText searchET;
     Switch nearMeSwitch;
     SeekBar radiusSeekbar;
-    LinearLayout radiusLayout;
+
 
     //boolean first = true;
 
@@ -81,7 +83,8 @@ public class SearchListFragment extends PlacesListFragment{
 
         });
 
-        radiusLayout = (LinearLayout)mRootView.findViewById(R.id.radiusLayout);
+//        LinearLayout radiusLayout = (LinearLayout)mRootView.findViewById(R.id.radiusLayout);
+        final RelativeLayout radiusLayout = (RelativeLayout) mRootView.findViewById(R.id.radiusLayout);
         nearMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -94,22 +97,23 @@ public class SearchListFragment extends PlacesListFragment{
 
         int radius = prefs.getInt(Constants.PREF_RADIUS, 1);
         radiusSeekbar = (SeekBar) mRootView.findViewById(R.id.radiusSeekBar);
-        radiusSeekbar.setMax(20);
+        radiusSeekbar.setMax(9);
+
         final TextView minTV = (TextView) mRootView.findViewById(R.id.minTV);
         TextView maxTV = (TextView) mRootView.findViewById(R.id.maxTV);
         minTV.setText(""+radius);
-        maxTV.setText(""+20);
-        radiusSeekbar.setProgress(radius);
+        maxTV.setText(""+10);
+        radiusSeekbar.setProgress(radius-1);
         radiusSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                minTV.setText(""+progress);
+                minTV.setText(""+(progress+1));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                prefs.edit().putInt(Constants.PREF_RADIUS,seekBar.getProgress()).commit();
+                prefs.edit().putInt(Constants.PREF_RADIUS,seekBar.getProgress()+1).commit();
                 searchNearMe();
             }
         });
@@ -175,7 +179,9 @@ public class SearchListFragment extends PlacesListFragment{
                 break;
             case R.id.shareMI:
                 //startActivity(createShareIntent(place));
-                startActivity(Utils.createShareIntent(place,getActivity()));
+                try {
+                    startActivity(Utils.createShareIntent(place,getActivity()));
+                } catch (ActivityNotFoundException e) {}
                 break;
         }
         return  true;

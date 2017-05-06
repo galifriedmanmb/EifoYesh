@@ -1,6 +1,7 @@
 package com.gali.apps.eifoyesh;
 
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -57,6 +58,8 @@ public class ResultMapFragment extends Fragment {
     TextView websiteTV;
     RatingBar ratingBar;
     TextView ratingNumTV;
+    ImageView websiteIV;
+    ImageView phoneIV;
 
     public ResultMapFragment() {
         // Required empty public constructor
@@ -78,6 +81,9 @@ public class ResultMapFragment extends Fragment {
         websiteTV = (TextView)mRootView.findViewById(R.id.websiteTV);
         ratingBar = (RatingBar)mRootView.findViewById(R.id.ratingBar);
         ratingNumTV = (TextView)mRootView.findViewById(R.id.ratingNumTV);
+        websiteIV = (ImageView)mRootView.findViewById(R.id.globeIV);
+        phoneIV = (ImageView)mRootView.findViewById(R.id.phoneIV);
+
 
         mySearchReciever = new MySearchReciever();
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
@@ -139,7 +145,9 @@ public class ResultMapFragment extends Fragment {
             mRootView.findViewById(R.id.buttonsLOShareLO).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(Utils.createShareIntent(place,getActivity()));
+                    try {
+                        startActivity(Utils.createShareIntent(place,getActivity()));
+                    } catch (ActivityNotFoundException e) {}
                 }
             });
 
@@ -196,14 +204,39 @@ public class ResultMapFragment extends Fragment {
 
             ResultItem placeDetails  = intent.getParcelableExtra("place");
             String address = placeDetails.address;
-            String phone = placeDetails.phone;
+            final String phone = placeDetails.phone;
             final String website = placeDetails.website;
             double rating = placeDetails.rating;
 
             if (address!=null)
                 addressTV.setText(address);
-            if (phone!=null)
+            if (phone!=null) {
                 phoneTV.setText(phone);
+                phoneTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_DIAL );
+                        intent.setData(Uri.parse("tel:"+phone));
+                        try {
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {}
+                    }
+                });
+                phoneIV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_DIAL );
+                        intent.setData(Uri.parse("tel:"+phone));
+                        try {
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {}
+                    }
+                });
+
+
+            }
             if (website!=null) {
                 websiteTV.setText(website);
                 websiteTV.setOnClickListener(new View.OnClickListener() {
@@ -212,9 +245,23 @@ public class ResultMapFragment extends Fragment {
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse(website));
-                        startActivity(intent);
+                        try {
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {}
                     }
                 });
+                websiteIV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(website));
+                        try {
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {}
+                    }
+                });
+
             }
             if (rating>0) {
                 Float ratingFloat = (float)rating;

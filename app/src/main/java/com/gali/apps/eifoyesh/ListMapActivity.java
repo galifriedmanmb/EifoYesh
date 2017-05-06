@@ -196,19 +196,19 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Toast.makeText(this, "location: onStatusChanged "+status+" "+provider, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "location: onStatusChanged "+status+" "+provider, Toast.LENGTH_SHORT).show();
 
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(this, "location: onProviderEnabled: "+provider, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "location: onProviderEnabled: "+provider, Toast.LENGTH_SHORT).show();
 
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        Toast.makeText(this, "location: onProviderDisabled: "+provider, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "location: onProviderDisabled: "+provider, Toast.LENGTH_SHORT).show();
 
     }
 
