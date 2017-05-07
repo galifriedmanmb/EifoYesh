@@ -6,8 +6,6 @@
     tools:context="com.gali.apps.eifoyesh.SearchListFragment"
     android:id="@+id/frameLayout">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -40,16 +38,6 @@
 
                         android:hint="@string/search" />
                 </android.support.design.widget.TextInputLayout>
-    <!--
-                <EditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:ems="10"
-                    android:id="@+id/searchET"
-                    android:layout_weight="1"
-                    android:hint="@string/search" />
-    -->
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="wrap_content"
@@ -73,15 +61,6 @@
                         android:gravity="left"
                         android:layout_gravity="left" />
                 </LinearLayout>
-
-                <!--
-                <Button
-                    android:text="@string/searchNearMe"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/searchNearMeBtn"
-                    android:layout_weight="1" />
-    -->
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -89,14 +68,6 @@
                     android:id="@+id/searchIV"
                     android:padding="10dp"
                     android:layout_gravity="right" />
-                <!--
-                            <Button
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/searchByTextBtn"
-                                android:layout_weight="1"
-                                android:text="@string/searchByText" />
-                -->
             </LinearLayout>
 
             <RelativeLayout
@@ -105,10 +76,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/radiusLayout"
                 android:layout_margin="10dp">
-
-
-
-                    <TextView
+                <TextView
                         android:text="TextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -129,9 +97,7 @@
                         android:id="@+id/maxTV"
 
                         android:layout_alignParentRight="true" />
-
             </RelativeLayout>
-
 
         </LinearLayout>
 
@@ -145,7 +111,6 @@
             android:id="@+id/placesRV" />
 
     </RelativeLayout>
-
     <!--
         <ImageView
             android:layout_width="wrap_content"

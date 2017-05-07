@@ -11,8 +11,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 /**
- * Created by 1 on 4/30/2017.
+ * A PreferenceActivity that has AppCompat capabilities, such as ActionBar
  */
 
 public abstract class AppCompatPreferenceActivity extends PreferenceActivity {

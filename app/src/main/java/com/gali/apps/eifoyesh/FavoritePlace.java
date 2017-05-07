@@ -1,7 +1,7 @@
 package com.gali.apps.eifoyesh;
 
 /**
- * Created by 1 on 4/24/2017.
+ * Used for saving favorite places with Sugar
  */
 
 public class FavoritePlace extends ResultItem {
@@ -19,7 +19,9 @@ public class FavoritePlace extends ResultItem {
         this.iconUrl = resultItem.iconUrl;
         this.placeId = resultItem.placeId;
         this.rating = resultItem.rating;
-
+        this.phone = resultItem.phone;
+        this.website = resultItem.website;
+        this.photoEncoded = resultItem.photoEncoded;
 
     }
 }

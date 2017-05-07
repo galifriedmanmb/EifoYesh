@@ -24,15 +24,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
-import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
-import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
-import okhttp3.internal.Util;
 
 public class SearchListFragment extends PlacesListFragment{
 
@@ -41,9 +35,6 @@ public class SearchListFragment extends PlacesListFragment{
     EditText searchET;
     Switch nearMeSwitch;
     SeekBar radiusSeekbar;
-
-
-    //boolean first = true;
 
     public SearchListFragment() {
         // Required empty public constructor
@@ -83,7 +74,6 @@ public class SearchListFragment extends PlacesListFragment{
 
         });
 
-//        LinearLayout radiusLayout = (LinearLayout)mRootView.findViewById(R.id.radiusLayout);
         final RelativeLayout radiusLayout = (RelativeLayout) mRootView.findViewById(R.id.radiusLayout);
         nearMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -151,11 +141,8 @@ public class SearchListFragment extends PlacesListFragment{
 
         }
         prefs.edit().putBoolean(Constants.PREF_FIRST,false).commit();
-        //first = false;
         return mRootView;
     }
-
-
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -163,22 +150,17 @@ public class SearchListFragment extends PlacesListFragment{
 
         // Inflate Menu from xml resource
         getActivity().getMenuInflater().inflate(R.menu.single_place_context_menu, menu);
-
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
-        //Toast.makeText(getActivity() , " User selected  " + info.position, Toast.LENGTH_LONG).show();
-
         ResultItem place = (ResultItem)allPlaces.get(info.position);
         switch (item.getItemId()) {
             case R.id.addToFavoritesMI:
-                //addToFavorites(place);
                 Utils.addToFavorites(place,getActivity());
                 break;
             case R.id.shareMI:
-                //startActivity(createShareIntent(place));
                 try {
                     startActivity(Utils.createShareIntent(place,getActivity()));
                 } catch (ActivityNotFoundException e) {}
@@ -187,42 +169,13 @@ public class SearchListFragment extends PlacesListFragment{
         return  true;
     }
 
-/*
-    //to share place details
-    private Intent createShareIntent(ResultItem place) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType("text/plain");
-
-        //send a link to place
-        String urlPlace = Utils.buildPlaceUrl(place);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.sharePlaceMessage)+"\n"+ urlPlace);
-        return shareIntent;
-    }
-*/
-/*
-    private void addToFavorites(ResultItem place) {
-        List<FavoritePlace> favorites = FavoritePlace.listAll(FavoritePlace.class);
-
-        for (int i = 0; i < favorites.size() ; i++) {
-            FavoritePlace favorite = favorites.get(i);
-            if (favorite.placeId.equals(place.placeId)) {
-                Toast.makeText(getActivity(),getResources().getText(R.string.placeAlreadyInFavorites).toString() , Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        FavoritePlace favoritePlace = new FavoritePlace(place);
-        favoritePlace.save();
-    }
-*/
     private void saveLastSearch(String search, int type) {
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
-        //searchET.setText("");
 
         //delete all historySearch from db
         ResultItem.deleteAll(ResultItem.class);
-
+        //save all search results in db
         Iterator<ResultItem> i = allPlaces.iterator();
         while(i.hasNext()){
             i.next().save();
@@ -271,11 +224,9 @@ public class SearchListFragment extends PlacesListFragment{
                 Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
             }
 
-
             ArrayList<ResultItem> newResults  = intent.getParcelableArrayListExtra("allresults");
             allPlaces.clear();
             allPlaces.addAll(newResults);
-            //allResults = intent.getParcelableArrayListExtra("allresults");
             String search = intent.getStringExtra("search");
             int type = intent.getIntExtra("type",Constants.SEARCH_TYPE_NEAR_ME);
             adapter.notifyDataSetChanged();
@@ -287,9 +238,6 @@ public class SearchListFragment extends PlacesListFragment{
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putParcelableArrayList("allPlaces",allPlaces);
-        //outState.putBoolean("first",first);
-
     }
 
     @Override
@@ -302,7 +250,6 @@ public class SearchListFragment extends PlacesListFragment{
     public void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mySearchReciever);
-
     }
 
 }

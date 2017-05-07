@@ -1,7 +1,7 @@
 package com.gali.apps.eifoyesh;
 
 /**
- * Created by jbt on 22/03/2017.
+ * An Interface for changing fragments, to be implemented by ListMapActivity
  */
 
 public interface FragmentChanger {

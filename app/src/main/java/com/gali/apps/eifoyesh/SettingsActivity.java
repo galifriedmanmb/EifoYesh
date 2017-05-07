@@ -14,8 +14,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        //setSupportActionBar(myToolbar);
         setTitle(getResources().getString(R.string.settings));
 
         addPreferencesFromResource(R.xml.settings);
@@ -55,8 +53,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         });
 
         Utils.setupActionBar(this);
-
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,38 +67,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 Intent settingsIntent = new Intent(this,SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;
-                /*
-                SettingsFragment settingsFragment = new SettingsFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.addToBackStack("settingsFragment");
-                transaction.replace(R.id.activity_main, settingsFragment).commit();
-                break;
-                */
             case R.id.favoritesMI:
                 Intent favoritesIntent = new Intent(this,FavoritesActivity.class);
                 startActivity(favoritesIntent);
                 break;
-                /*
-                FavoritesFragment favoritesFragment = new FavoritesFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.addToBackStack("favoritesFragment");
-                //transaction2.replace(R.id.activity_main, favoritesFragment).commit();
-                transaction.replace(R.id.fragmentContainerList, favoritesFragment);
-                if (!smallDevice) {
-                    mapFragment = new ResultMapFragment();
-                    transaction.replace(R.id.fragmentContainerMap, mapFragment, "resultMapFragment");
-                }
-                transaction.commit();
-                break;
-                */
-
             case R.id.homeMI:
                 Intent searchIntent = new Intent(this,MainActivity.class);
                 startActivity(searchIntent);
                 break;
-//                getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//                break;
-
         }
         return true;
     }

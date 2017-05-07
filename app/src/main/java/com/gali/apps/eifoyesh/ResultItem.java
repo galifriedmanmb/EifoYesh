@@ -1,10 +1,7 @@
 package com.gali.apps.eifoyesh;
 
-import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
-
 import com.orm.SugarRecord;
 
 /**
@@ -29,20 +26,7 @@ public class ResultItem extends SugarRecord implements Parcelable {
 
     public ResultItem() {
     }
-/*
-    public ResultItem(String name, String address, double lat, double lng, int number, int distance, String distanceUnit, String iconUrl, String placeId) {
-        this.name = name;
-        this.address = address;
-        this.lat = lat;
-        this.lng = lng;
-        this.number = number;
-        this.distance = distance;
-        this.distanceUnit = distanceUnit;
-        this.iconUrl = iconUrl;
-        this.placeId = placeId;
 
-    }
-*/
     public ResultItem(String name, String address, int number, String placeId, String iconUrl, double lat, double lng) {
         this.name = name;
         this.address = address;
@@ -59,7 +43,6 @@ public class ResultItem extends SugarRecord implements Parcelable {
         this.website = website;
         this.rating = rating;
     }
-
 
     protected ResultItem(Parcel in) {
         name = in.readString();

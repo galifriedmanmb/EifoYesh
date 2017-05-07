@@ -1,32 +1,19 @@
 package com.gali.apps.eifoyesh;
 
-import android.Manifest;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.wifi.WifiManager;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
-
 import com.orm.SugarContext;
 
+/**
+ * The main activity, used for performing searches.
+ * It extends ListMapActivity, therefor has the following characteristics:
+ * 1. it contains a PlacesListFragment(SearchListFragment) and a ResultMapFragment.
+ * 1. Location manager updates -> used for searching "near_me" and for displaying a place's distance
+ * 2. fragment changing -> when touch a place in the list (in the list fragment), set the relevant map fragment
+ * 3. has options menu
+ */
 public class MainActivity extends ListMapActivity {
 
     @Override
@@ -34,17 +21,21 @@ public class MainActivity extends ListMapActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //setting the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //set default values for preferences
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
+        //init sugar
         SugarContext.init(this);
 
+        //define the fragments
         if (smallDevice) {
             listFragment = (SearchListFragment) getFragmentManager().findFragmentByTag("listFragment");
             if (listFragment == null) {
                 listFragment = new SearchListFragment();
-                //listFragment.layoutId = R.layout.fragment_search_list;
                 listFragment.setCurrentLocation(currentLocation);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainer, listFragment, "listFragment");
@@ -54,7 +45,6 @@ public class MainActivity extends ListMapActivity {
             listFragment = (SearchListFragment) getFragmentManager().findFragmentByTag("listFragment");
             if (listFragment == null) {
                 listFragment = new SearchListFragment();
-                //listFragment.layoutId = R.layout.fragment_search_list;
                 listFragment.setCurrentLocation(currentLocation);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainerList, listFragment, "listFragment");

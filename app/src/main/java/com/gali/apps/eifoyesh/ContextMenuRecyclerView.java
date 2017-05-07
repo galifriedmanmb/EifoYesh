@@ -7,7 +7,7 @@ import android.view.ContextMenu;
 import android.view.View;
 
 /**
- * Created by 1 on 4/23/2017.
+ * A RecyclerView with ContextMenu
  */
 
 public class ContextMenuRecyclerView extends RecyclerView {

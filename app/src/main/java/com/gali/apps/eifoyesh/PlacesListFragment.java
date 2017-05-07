@@ -14,13 +14,10 @@ public class PlacesListFragment extends Fragment {
 
     protected View mRootView;
     int layoutId;
+    private Location currentLocation;
     ArrayList allPlaces;
     ContextMenuRecyclerView placesRV;
-
-    private Location currentLocation;
     PlacesListAdapter adapter;
-
-//    int currentPosition;
     FragmentChanger fragmentChanger;
 
     public PlacesListFragment() {

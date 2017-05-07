@@ -17,6 +17,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+/**
+ * A General class that contains a PlacesListFragment and a ResultMapFragment
+ * has 2 subclasses:
+ * 1. MainActivity  -> used for searching
+ * 2. FavoritesActivity  ->  used for browsing through favorite places
+ *
+ * this class handles these capabilities:
+ * 1. Location manager updates -> used for searching "near_me" and for displaying a place's distance
+ * 2. fragment changing -> when touch a place in the list (in the list fragment), set the relevant map fragment
+ * 3. creates the options menu and defines the behaviour
+ */
 public class ListMapActivity extends AppCompatActivity implements FragmentChanger, LocationListener {
 
     boolean smallDevice = true;
@@ -27,21 +38,25 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_list_map);
+       super.onCreate(savedInstanceState);
 
-
+       //determin the screen size, to be used when setting fragments
        int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
        if (screenSize == Configuration.SCREENLAYOUT_SIZE_LARGE)
            smallDevice = false;
-//       if (findViewById(R.id.fragmentContainerMap)!=null)
-//           smallDevice = false;
 
+        //location updates
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-        getCurrentLocation();
 
+        //start with the current location
+        getCurrentLocation();
     }
 
+    /**
+     * determines the current location by:
+     * 1. get last knows location from fines location provider available
+     * 2. try to get location by network provider if not successful otherwize
+     */
     private void getCurrentLocation() {
         //get last known location by gps
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -50,14 +65,13 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
             currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
 
+        //if not successful, get last known location by network provider
         if(currentLocation == null) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             } else {
                 currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
         }
-
-
 
         //wait for 60 seconds and try to get location using network provider (cell ro wifi)
         final Handler handler = new Handler();
@@ -82,6 +96,7 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
         if (requestCode == 12) {
             if (grantResults!=null && grantResults.length>0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //register for gps location updates
                     startGPS();
                 } else {
                     Toast.makeText(this, getResources().getText(R.string.messageMustAllowGPSPermission).toString(), Toast.LENGTH_SHORT).show();
@@ -90,6 +105,7 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
         }
     }
 
+    //register for gps location updates
     private void startGPS() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
@@ -98,15 +114,10 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
 
 
     public void changeFragmentsToMap(ResultItem resultItem) {
-
+        //when a place was picked, change too the relevant map fragment
         if (resultItem != null) {
             mapFragment = new ResultMapFragment();
             mapFragment.place = resultItem;
-//            Location location = new Location("");
-//            location.setLatitude(resultItem.lat);
-//            location.setLongitude(resultItem.lng);
-//            mapFragment.setCurrentLocation(location);
-
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             if (smallDevice) {
                 transaction.addToBackStack("changeMap");
@@ -128,37 +139,31 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-/*
-            case R.id.testMI:
-                Intent testIntent = new Intent(this,TestActivity.class);
-                startActivity(testIntent);
-                break;
-*/
             case R.id.settingsMI:
+                //open settings activity
                 Intent settingsIntent = new Intent(this,SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;
             case R.id.favoritesMI:
+                //open favorites activity
                 Intent favoritesIntent = new Intent(this,FavoritesActivity.class);
                 startActivity(favoritesIntent);
                 break;
              case R.id.homeMI:
+                //open main activity, for searches
                 Intent searchIntent = new Intent(this,MainActivity.class);
                 startActivity(searchIntent);
                 break;
-//                getFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//                break;
-
         }
         return true;
     }
 
     @Override
     public void onBackPressed() {
-
         if (getFragmentManager().getBackStackEntryCount() == 0) {
             finish();
         } else {
@@ -170,6 +175,7 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
     @Override
     public void onResume() {
         super.onResume();
+        //refister for gps updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 12);
         } else {
@@ -179,6 +185,7 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
 
     @Override
     public void onPause() {
+        //unregister from gps updates
         super.onPause();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
@@ -188,6 +195,7 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
     @Override
     public void onLocationChanged(Location location) {
         currentLocation=location;
+        //update both fragments with new location
         if (listFragment!=null)
             listFragment.setCurrentLocation(currentLocation);
         if (mapFragment!=null)
@@ -197,20 +205,16 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 //        Toast.makeText(this, "location: onStatusChanged "+status+" "+provider, Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
     public void onProviderEnabled(String provider) {
 //        Toast.makeText(this, "location: onProviderEnabled: "+provider, Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
     public void onProviderDisabled(String provider) {
 //        Toast.makeText(this, "location: onProviderDisabled: "+provider, Toast.LENGTH_SHORT).show();
-
     }
-
 
 }

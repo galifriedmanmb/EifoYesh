@@ -3,23 +3,17 @@ package com.gali.apps.eifoyesh;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 import com.gali.apps.eifoyesh.exceptions.NullLocationException;
-import com.squareup.picasso.Picasso;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,7 +29,7 @@ public class SearchService extends IntentService {
     private static final String ACTION_GET_PLACE_DETAILS = "com.gali.apps.eifoyesh.action.GET_PLACE_DETAILS";
 
     private static final String EXTRA_SEARCH_TEXT = "com.gali.apps.eifoyesh.extra.SEARCH_TEXT";
-    private static final String EXTRA_PIC_MAX_HEIGHT = "com.gali.apps.eifoyesh.extra.PIC_MAX_HEIGHT";
+    //private static final String EXTRA_PIC_MAX_HEIGHT = "com.gali.apps.eifoyesh.extra.PIC_MAX_HEIGHT";
     private static final String EXTRA_LOCATION_LAT = "com.gali.apps.eifoyesh.extra.LOCATION_LAT";
     private static final String EXTRA_LOCATION_LNG = "com.gali.apps.eifoyesh.extra.LOCATION_LNG";
     private static final String EXTRA_RADIUS = "com.gali.apps.eifoyesh.extra.EXTRA_RADIUS";
@@ -81,7 +75,7 @@ public class SearchService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_FIND_BY_TEXT.equals(action)) {
                 final String text = intent.getStringExtra(EXTRA_SEARCH_TEXT);
-                String query = null;// text.replace(" ","+");
+                String query = "";
                 try {
                     query = URLEncoder.encode(text, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
@@ -112,7 +106,7 @@ public class SearchService extends IntentService {
     }
 
     private void handleActionFind(String url, String text, int type) {
-Log.d("****************url: ",url);
+//Log.d("****************url: ",url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
@@ -158,11 +152,6 @@ Log.d("****************url: ",url);
                     JSONObject location = geometry.getJSONObject("location");
                     double lat = location.getDouble("lat");
                     double lng = location.getDouble("lng");
-//                    double rating = 0;
-//                    if (result.has("rating")) {
-//                        rating = result.getDouble("rating");
-//                    }
-
                     ResultItem place = new ResultItem(name, address, i, id, iconUrl, lat, lng);
                     places.add(place);
                 }
@@ -185,7 +174,7 @@ Log.d("****************url: ",url);
     }
 
     private void handleActionGetPlaceDetails(String url) {
-        Log.d("****************url: ",url);
+//        Log.d("****************url: ",url);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)

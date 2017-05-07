@@ -20,15 +20,4 @@
             android:key="@string/exitKey" />
 
 
-<!--
-<PreferenceCategory
-    android:title="@string/title_second_section">
-    <Preference
-        android:title="@string/title_intent_preference">
-        <intent android:action="android.intent.action.VIEW"
-            android:data="http://codepath.com/" />
-    </Preference>
-
-</PreferenceCategory>
--->
 </PreferenceScreen>

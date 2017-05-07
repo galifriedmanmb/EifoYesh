@@ -17,13 +17,16 @@ public class FavoritesListFragment extends PlacesListFragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        //set the layout
         layoutId = R.layout.fragment_favorites_list;
+
+        //load the favorite places from db
         allPlaces = (ArrayList<FavoritePlace>) FavoritePlace.listAll(FavoritePlace.class);
+
         mRootView = super.onCreateView(inflater,container,savedInstanceState);
         return mRootView;
     }
@@ -39,11 +42,12 @@ public class FavoritesListFragment extends PlacesListFragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
-        //Toast.makeText(getActivity() , " User selected  " + info.position, Toast.LENGTH_LONG).show();
 
+        //get the actual touched place
         FavoritePlace place = (FavoritePlace) allPlaces.get(info.position);
         switch (item.getItemId()) {
             case R.id.deleteFavoriteMI:
+                //remove record from db and refresh the adapter
                 place.delete();
                 Toast.makeText(getActivity(), getResources().getString(R.string.favoriteDeleted), Toast.LENGTH_SHORT).show();
                 allPlaces = (ArrayList<FavoritePlace>) FavoritePlace.listAll(FavoritePlace.class);
