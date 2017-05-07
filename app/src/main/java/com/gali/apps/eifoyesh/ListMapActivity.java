@@ -113,11 +113,11 @@ public class ListMapActivity extends AppCompatActivity implements FragmentChange
     }
 
 
-    public void changeFragmentsToMap(ResultItem resultItem) {
+    public void changeFragmentsToMap(Place place) {
         //when a place was picked, change too the relevant map fragment
-        if (resultItem != null) {
+        if (place != null) {
             mapFragment = new ResultMapFragment();
-            mapFragment.place = resultItem;
+            mapFragment.place = place;
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             if (smallDevice) {
                 transaction.addToBackStack("changeMap");

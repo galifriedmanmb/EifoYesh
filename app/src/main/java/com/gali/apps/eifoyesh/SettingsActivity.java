@@ -3,12 +3,19 @@ package com.gali.apps.eifoyesh;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.preference.Preference;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
+/**
+ * the activity to display the settings
+ */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
@@ -18,6 +25,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         addPreferencesFromResource(R.xml.settings);
 
+        //handle delete all favorites
         Preference deleteAllFavoritesButton = (Preference)findPreference(getResources().getString(R.string.deleteAllFavoritesKey));
         deleteAllFavoritesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -43,6 +51,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
         });
 
+        //handle exit from settings
         Preference exitButton = (Preference)findPreference(getResources().getString(R.string.exitKey));
         exitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -52,7 +61,30 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
         });
 
-        Utils.setupActionBar(this);
+        //create the toolbar
+        setupActionBar();
+    }
+
+    //creating the toolbar
+    private void setupActionBar() {
+        Toolbar toolbar = new Toolbar(this);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.toolbar));
+        AppBarLayout appBarLayout = new AppBarLayout(this);
+        appBarLayout.addView(toolbar);
+//        appBarLayout.setLayoutParams(new AppBarLayout.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT));
+
+        final ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
+        final ViewGroup window = (ViewGroup) root.getChildAt(0);
+        window.addView(appBarLayout, 0);
+        setSupportActionBar(toolbar);
+        // Show the Up button in the action bar.
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

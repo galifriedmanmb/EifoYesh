@@ -8,7 +8,7 @@ import com.orm.SugarRecord;
  * Created by 1 on 4/19/2017.
  */
 
-public class ResultItem extends SugarRecord implements Parcelable {
+public class Place extends SugarRecord implements Parcelable {
 
     String name;
     String address;
@@ -24,10 +24,10 @@ public class ResultItem extends SugarRecord implements Parcelable {
     String website;
     String photoEncoded;
 
-    public ResultItem() {
+    public Place() {
     }
 
-    public ResultItem(String name, String address, int number, String placeId, String iconUrl, double lat, double lng) {
+    public Place(String name, String address, int number, String placeId, String iconUrl, double lat, double lng) {
         this.name = name;
         this.address = address;
         this.number = number;
@@ -37,14 +37,14 @@ public class ResultItem extends SugarRecord implements Parcelable {
         this.lng = lng;
     }
 
-    public ResultItem(String address, String phone, String website, double rating) {
+    public Place(String address, String phone, String website, double rating) {
         this.address = address;
         this.phone = phone;
         this.website = website;
         this.rating = rating;
     }
 
-    protected ResultItem(Parcel in) {
+    protected Place(Parcel in) {
         name = in.readString();
         address = in.readString();
         lat = in.readDouble();
@@ -60,15 +60,15 @@ public class ResultItem extends SugarRecord implements Parcelable {
         photoEncoded = in.readString();
     }
 
-    public static final Creator<ResultItem> CREATOR = new Creator<ResultItem>() {
+    public static final Creator<Place> CREATOR = new Creator<Place>() {
         @Override
-        public ResultItem createFromParcel(Parcel in) {
-            return new ResultItem(in);
+        public Place createFromParcel(Parcel in) {
+            return new Place(in);
         }
 
         @Override
-        public ResultItem[] newArray(int size) {
-            return new ResultItem[size];
+        public Place[] newArray(int size) {
+            return new Place[size];
         }
     };
 

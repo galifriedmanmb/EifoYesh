@@ -37,14 +37,14 @@ import com.squareup.picasso.Picasso;
 import java.text.DecimalFormat;
 
 /**
- * A simple {@link Fragment} subclass.
+ * The fragment that displays the place in a map, and the detailed information about the place
  */
 public class ResultMapFragment extends Fragment {
 
     MySearchReciever mySearchReciever;
     private View mRootView;
     private Location currentLocation;
-    ResultItem place;
+    Place place;
     ImageView placeIV;
     TextView nameTV;
     TextView addressTV;
@@ -67,7 +67,6 @@ public class ResultMapFragment extends Fragment {
             mRootView = inflater.inflate(R.layout.fragment_result_map, container, false);
         }
 
-
         nameTV = (TextView)mRootView.findViewById(R.id.nameTV);
         placeIV = (ImageView)mRootView.findViewById(R.id.placeIV);
         addressTV = (TextView)mRootView.findViewById(R.id.addressTV);
@@ -78,8 +77,9 @@ public class ResultMapFragment extends Fragment {
         websiteIV = (ImageView)mRootView.findViewById(R.id.globeIV);
         phoneIV = (ImageView)mRootView.findViewById(R.id.phoneIV);
 
-
+        //for retrieving detailed data on the plavce
         mySearchReciever = new MySearchReciever();
+
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
 
         if (savedInstanceState!=null) {
@@ -87,6 +87,7 @@ public class ResultMapFragment extends Fragment {
             currentLocation = savedInstanceState.getParcelable("currentLocation");
         }
 
+        //display the map
         MapFragment mapFragment = new MapFragment();
         getFragmentManager().beginTransaction().replace(R.id.mapFragmentContainer,mapFragment).commit();
         mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -95,6 +96,7 @@ public class ResultMapFragment extends Fragment {
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 googleMap.getUiSettings().setZoomGesturesEnabled(true);
                 if (place != null) {
+                    //open the map on the place's location
                     LatLng latLng = new LatLng(place.lat, place.lng);
                     CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
 
@@ -103,7 +105,9 @@ public class ResultMapFragment extends Fragment {
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                     googleMap.moveCamera(update);
                 } else {
+                    //no specific place (in large devices, before a place was picked)
                     if (currentLocation != null) {
+                        //open the map on current location
                         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 15);
 
@@ -112,17 +116,18 @@ public class ResultMapFragment extends Fragment {
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                         googleMap.moveCamera(update);
                     }
-
                 }
             }
         });
 
 
+        //display the detailed data of the place
         if (place!=null) {
             nameTV.setText(place.name);
             Picasso.with(getActivity()).load(place.iconUrl).into(placeIV);
             SearchService.startActionGetPlaceDetails(getActivity(),place.placeId);
 
+            //only show "favorites" icon if not in favorites screen already...
             LinearLayout favoritesLO = (LinearLayout)mRootView.findViewById(R.id.buttonsLOFavoritesLO);
             String title = getActivity().getTitle().toString();
             if (title.equals(getResources().getString(R.string.favorites))) {
@@ -136,6 +141,7 @@ public class ResultMapFragment extends Fragment {
                 });
             }
 
+            //share
             mRootView.findViewById(R.id.buttonsLOShareLO).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -146,6 +152,7 @@ public class ResultMapFragment extends Fragment {
             });
 
         } else {
+            //if no specific place, dont show extra data
             mRootView.findViewById(R.id.nestedScrollView).setVisibility(View.INVISIBLE);
             AppBarLayout.LayoutParams p = (AppBarLayout.LayoutParams) collapsingToolbarLayout.getLayoutParams();
             p.setScrollFlags(0);
@@ -156,12 +163,12 @@ public class ResultMapFragment extends Fragment {
             tp.height = AppBarLayout.LayoutParams.MATCH_PARENT;
             appBarLayout.setLayoutParams(tp);
 
-
         }
 
         return mRootView;
     }
 
+    //update the current location when changed
     public void setCurrentLocation (Location currentLocation) {
         this.currentLocation = currentLocation;
     }
@@ -185,10 +192,12 @@ public class ResultMapFragment extends Fragment {
 
     }
 
+    //recieve details of place
     class MySearchReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String status = intent.getStringExtra("status");
+            //handle errors
             if (!status.equals("OK")) {
                 String error = intent.getStringExtra("error_message");
                 if (error!=null)
@@ -196,7 +205,7 @@ public class ResultMapFragment extends Fragment {
                 Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
             }
 
-            ResultItem placeDetails  = intent.getParcelableExtra("place");
+            Place placeDetails  = intent.getParcelableExtra("place");
             String address = placeDetails.address;
             final String phone = placeDetails.phone;
             final String website = placeDetails.website;

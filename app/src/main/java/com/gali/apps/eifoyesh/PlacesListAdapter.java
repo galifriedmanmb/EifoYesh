@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * Adapter for a RecyclerView of places
  */
 
-public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapter<PlacesListAdapter.PlaceViewHolder> {
+public class PlacesListAdapter<T extends Place> extends RecyclerView.Adapter<PlacesListAdapter.PlaceViewHolder> {
 
     Context c;
     FragmentChanger fragmentChanger;
@@ -47,6 +47,7 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
         PlaceViewHolder singleResultVH = new PlaceViewHolder(singleview);
         return singleResultVH;
     }
+
     @Override
     public int getItemCount() {
         return allPlaces.size();
@@ -54,8 +55,8 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
 
     public void onBindViewHolder(PlacesListAdapter.PlaceViewHolder holder, int position) {
         holder.itemView.setLongClickable(true);
-        ResultItem resultItem = allPlaces.get(position);
-        holder.bindData(resultItem);
+        Place place = allPlaces.get(position);
+        holder.bindData(place);
     }
 
     public void setCurrentLocation (Location currentLocation) {
@@ -83,44 +84,47 @@ public class PlacesListAdapter<T extends ResultItem> extends RecyclerView.Adapte
 
             }
 
-            public void bindData (final ResultItem resultItem) {
-                nameTV.setText(resultItem.name);
-                addressTV.setText(resultItem.address);
+            public void bindData (final Place place) {
+                nameTV.setText(place.name);
+                addressTV.setText(place.address);
                 //numberTV.setText("" + (resultItem.number+1));
 
+                //set the distance from current location
                 if (currentLocation != null) {
                     String unit = PreferenceManager.getDefaultSharedPreferences(c).getString("distance_units", Constants.SHARED_PREFERENCES_UNIT_KM);
-                    double distance = Utils.getDistance(resultItem.lat, resultItem.lng, currentLocation.getLatitude(), currentLocation.getLongitude(), unit);
+                    double distance = Utils.getDistance(place.lat, place.lng, currentLocation.getLatitude(), currentLocation.getLongitude(), unit);
                     DecimalFormat df = new DecimalFormat("#.#");
                     String distanceString = df.format(distance);
                     distanceTV.setText(distanceString + " " + unit);
                 } else {
                     distanceTV.setText("");
                 }
+
+                //change the map fragment when clicking a place
                 layout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        fragmentChanger.changeFragmentsToMap(resultItem);
+                        fragmentChanger.changeFragmentsToMap(place);
                     }
                 });
 
                 //get photo
-                if (resultItem.photoEncoded != null) {//from db
-                    Bitmap photoBM = Utils.decodeBase64(resultItem.photoEncoded);
+                if (place.photoEncoded != null) {
+                    //the data is from from the db (favorites, or no iternet)
+                    Bitmap photoBM = Utils.decodeBase64(place.photoEncoded);
                     iconIV.setImageBitmap(photoBM);
                 } else {
-                    Picasso.with(c).load(resultItem.iconUrl).into(iconIV, new Callback() {
+                    //the data is from the internet (a search)
+                    Picasso.with(c).load(place.iconUrl).into(iconIV, new Callback() {
                         @Override
                         public void onSuccess() {
                             Bitmap bitmap = ((BitmapDrawable) iconIV.getDrawable()).getBitmap();
-                            resultItem.photoEncoded = Utils.encodeToBase64(bitmap);
-                            //save the photo when it arrives
-                            resultItem.save();
+                            place.photoEncoded = Utils.encodeToBase64(bitmap);
+                            //save the photo too, when it arrives
+                            place.save();
                         }
                         @Override
-                        public void onError() {
-                            int i=0;
-                        }
+                        public void onError() {}
                     });
                 }
             }

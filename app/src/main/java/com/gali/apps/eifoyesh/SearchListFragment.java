@@ -28,6 +28,9 @@ import com.gali.apps.eifoyesh.exceptions.NullLocationException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * This fragment handles the searches
+ */
 public class SearchListFragment extends PlacesListFragment{
 
     MySearchReciever mySearchReciever;
@@ -43,13 +46,19 @@ public class SearchListFragment extends PlacesListFragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //set the layout
         layoutId = R.layout.fragment_search_list;
-        allPlaces = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
-        mRootView = super.onCreateView(inflater,container,savedInstanceState);
 
+        //load the last searched places from db
+        allPlaces = (ArrayList<Place>) Place.listAll(Place.class);
+
+        mRootView = super.onCreateView(inflater,container,savedInstanceState);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+        //define a reciever for search broadcasts
         mySearchReciever = new MySearchReciever();
+
+        //clear the searchET when clicked
         searchET = (EditText) mRootView.findViewById(R.id.searchET);
         searchET.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,27 +66,13 @@ public class SearchListFragment extends PlacesListFragment{
                 ((EditText)v).setText("");
             }
         });
+
+        //nearMe switch: dont show radius seekbar if not "nearMe"
         nearMeSwitch = (Switch)mRootView.findViewById(R.id.nearMeSwitch);
-        mRootView.findViewById(R.id.searchIV).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //get rid of virtual keyboard
-                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getView().getRootView().getWindowToken(), 0);
-
-                boolean nearMe = nearMeSwitch.isChecked();
-                if (nearMe)
-                    searchNearMe();
-                else
-                    searchByText();
-            }
-
-        });
-
-        final RelativeLayout radiusLayout = (RelativeLayout) mRootView.findViewById(R.id.radiusLayout);
         nearMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                RelativeLayout radiusLayout = (RelativeLayout) mRootView.findViewById(R.id.radiusLayout);
                 if (isChecked)
                     radiusLayout.setVisibility(LinearLayout.VISIBLE);
                 else
@@ -85,10 +80,10 @@ public class SearchListFragment extends PlacesListFragment{
             }
         });
 
+        //radius setting
         int radius = prefs.getInt(Constants.PREF_RADIUS, 1);
         radiusSeekbar = (SeekBar) mRootView.findViewById(R.id.radiusSeekBar);
         radiusSeekbar.setMax(9);
-
         final TextView minTV = (TextView) mRootView.findViewById(R.id.minTV);
         TextView maxTV = (TextView) mRootView.findViewById(R.id.maxTV);
         minTV.setText(""+radius);
@@ -108,19 +103,36 @@ public class SearchListFragment extends PlacesListFragment{
             }
         });
 
+        //searching
+        mRootView.findViewById(R.id.searchIV).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //get rid of virtual keyboard
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getView().getRootView().getWindowToken(), 0);
+
+                boolean nearMe = nearMeSwitch.isChecked();
+                if (nearMe)
+                    searchNearMe();
+                else
+                    searchByText();
+            }
+
+        });
 
         if (savedInstanceState!=null) {
            //first = savedInstanceState.getBoolean("first");
         } else {
+            //load the last search:
             if (!Utils.isConnected(getActivity())) {
+                //no internet connection, get last search from db
                 Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
-                //get last search from db
-                ArrayList<ResultItem> newResults  = (ArrayList<ResultItem>) ResultItem.listAll(ResultItem.class);
+                ArrayList<Place> newResults  = (ArrayList<Place>) Place.listAll(Place.class);
                 allPlaces.clear();
                 allPlaces.addAll(newResults);
                 adapter.notifyDataSetChanged();
-
             } else {
+                //internet connection ok, run last search (if it's first time in this page)
                 boolean first = prefs.getBoolean(Constants.PREF_FIRST,true);
                 if (first) {
                     //run last search
@@ -155,7 +167,7 @@ public class SearchListFragment extends PlacesListFragment{
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         ContextMenuRecyclerView.RecyclerContextMenuInfo info = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
-        ResultItem place = (ResultItem)allPlaces.get(info.position);
+        Place place = (Place)allPlaces.get(info.position);
         switch (item.getItemId()) {
             case R.id.addToFavoritesMI:
                 Utils.addToFavorites(place,getActivity());
@@ -170,13 +182,14 @@ public class SearchListFragment extends PlacesListFragment{
     }
 
     private void saveLastSearch(String search, int type) {
+        //save the search params
         prefs.edit().putString(Constants.PREF_LAST_SEARCH,search).commit();
         prefs.edit().putInt(Constants.PREF_LAST_SEARCH_TYPE,type).commit();
 
-        //delete all historySearch from db
-        ResultItem.deleteAll(ResultItem.class);
+        //delete all history Search from db
+        Place.deleteAll(Place.class);
         //save all search results in db
-        Iterator<ResultItem> i = allPlaces.iterator();
+        Iterator<Place> i = allPlaces.iterator();
         while(i.hasNext()){
             i.next().save();
         }
@@ -184,6 +197,7 @@ public class SearchListFragment extends PlacesListFragment{
     }
 
     private void searchByText() {
+        //if all conditions are ok, start the service of searchByText
         if (!Utils.isConnected(getActivity())) {
             Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
             return;
@@ -196,6 +210,7 @@ public class SearchListFragment extends PlacesListFragment{
     }
 
     private void searchNearMe() {
+        //if all conditions are ok, start the service of searchNearMe
         if (!Utils.isConnected(getActivity())) {
             Toast.makeText(getActivity(), getResources().getString(R.string.noInternetConnectionMsg), Toast.LENGTH_SHORT).show();
             return;
@@ -209,14 +224,14 @@ public class SearchListFragment extends PlacesListFragment{
             }
         } else
             Toast.makeText(getActivity(), getResources().getString(R.string.enterValueToSearch), Toast.LENGTH_SHORT).show();
-
     }
 
-
+    //recieve search results
     class MySearchReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String status = intent.getStringExtra("status");
+            //handle errors
             if (!status.equals("OK")) {
                 String error = intent.getStringExtra("error_message");
                 if (error!=null)
@@ -224,12 +239,14 @@ public class SearchListFragment extends PlacesListFragment{
                 Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
             }
 
-            ArrayList<ResultItem> newResults  = intent.getParcelableArrayListExtra("allresults");
+            //handle results
+            ArrayList<Place> newResults  = intent.getParcelableArrayListExtra("allresults");
             allPlaces.clear();
             allPlaces.addAll(newResults);
             String search = intent.getStringExtra("search");
             int type = intent.getIntExtra("type",Constants.SEARCH_TYPE_NEAR_ME);
             adapter.notifyDataSetChanged();
+            //save the search
             saveLastSearch(search, type);
 
         }

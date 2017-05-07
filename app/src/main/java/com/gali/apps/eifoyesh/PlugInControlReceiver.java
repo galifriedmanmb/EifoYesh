@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 /**
- * Created by 1 on 4/25/2017.
+ * notifies when changes in power connectivity happen
  */
 
 public class PlugInControlReceiver extends BroadcastReceiver {

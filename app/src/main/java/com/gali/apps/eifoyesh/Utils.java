@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 /**
- * Created by 1 on 4/23/2017.
+ * General Utilities
  */
 
 public class Utils {
@@ -32,6 +32,9 @@ public class Utils {
     }
 
 
+    /**
+     * get the distance of the place, in the relevant unit
+     */
     public static double getDistance(double lat1, double lng1, double lat2, double lng2, String unit) {
         int r = 6371; // average radius of the earth in km
         double dLat = Math.toRadians(lat2 - lat1);
@@ -48,7 +51,7 @@ public class Utils {
         }
     }
 
-    public static String buildPlaceUrl(ResultItem place) {
+    public static String buildPlaceUrl(Place place) {
         return "https://maps.google.com/maps?placeid="+place.placeId;
     }
 
@@ -69,13 +72,6 @@ public class Utils {
         return "https://maps.googleapis.com/maps/api/place/details/json?placeid="+placeId+"&key="+Constants.GOOGLE_PLACES_API_KEY;
     }
 
-
-    public static String encodeToBase64(Bitmap image, Bitmap.CompressFormat compressFormat, int quality){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        image.compress(compressFormat, quality, byteArrayOutputStream);
-        return Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
-    }
-
     public static String encodeToBase64(Bitmap image){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
@@ -94,35 +90,14 @@ public class Utils {
             return (int)(radius * 1000 * 1.61);
     }
 
-    public static void setupActionBar(final AppCompatPreferenceActivity activity) {
-        Toolbar toolbar = new Toolbar(activity);
-        toolbar.setBackgroundColor(activity.getResources().getColor(R.color.toolbar));
 
-
-        AppBarLayout appBarLayout = new AppBarLayout(activity);
-        appBarLayout.addView(toolbar);
-
-//        appBarLayout.setLayoutParams(new AppBarLayout.LayoutParams(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT));
-
-        final ViewGroup root = (ViewGroup) activity.findViewById(android.R.id.content);
-        final ViewGroup window = (ViewGroup) root.getChildAt(0);
-        window.addView(appBarLayout, 0);
-
-        activity.setSupportActionBar(toolbar);
-
-        // Show the Up button in the action bar.
-        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.onBackPressed();
-            }
-        });
-    }
-
-    public static void addToFavorites(ResultItem place, Context context) {
+    /**
+     * save a place to favorites
+     */
+    public static void addToFavorites(Place place, Context context) {
         List<FavoritePlace> favorites = FavoritePlace.listAll(FavoritePlace.class);
 
+        //dont save if already exists
         for (int i = 0; i < favorites.size() ; i++) {
             FavoritePlace favorite = favorites.get(i);
             if (favorite.placeId.equals(place.placeId)) {
@@ -136,7 +111,7 @@ public class Utils {
     }
 
     //to share place details
-    public static Intent createShareIntent(ResultItem place, Context context) {
+    public static Intent createShareIntent(Place place, Context context) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");

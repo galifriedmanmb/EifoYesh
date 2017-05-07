@@ -18,7 +18,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-
+/**
+ * The Service for executing searches on google place api's
+ */
 public class SearchService extends IntentService {
 
     public static final String INTENT_FILTER_FINISHED_SEARCH = "com.gali.apps.eifoyesh.FINISHED_SEARCH";
@@ -41,6 +43,7 @@ public class SearchService extends IntentService {
         super("SearchService");
     }
 
+    //start service for getting a plac'es details
     public static void startActionGetPlaceDetails(Context context, String placeId) {
         Intent intent = new Intent(context, SearchService.class);
         intent.setAction(ACTION_GET_PLACE_DETAILS);
@@ -48,6 +51,7 @@ public class SearchService extends IntentService {
         context.startService(intent);
     }
 
+    //start service for finding by text
     public static void startActionFindByText(Context context, String text, Location location) {
         Intent intent = new Intent(context, SearchService.class);
         intent.setAction(ACTION_FIND_BY_TEXT);
@@ -55,6 +59,7 @@ public class SearchService extends IntentService {
         context.startService(intent);
     }
 
+    //start service for finding near me
     public static void startActionFindNearMe(Context context, String text, Location location, int radius, String unit) throws NullLocationException {
         if (location==null)
             throw new NullLocationException();
@@ -105,6 +110,7 @@ public class SearchService extends IntentService {
         }
     }
 
+    //find places
     private void handleActionFind(String url, String text, int type) {
 //Log.d("****************url: ",url);
         OkHttpClient client = new OkHttpClient();
@@ -115,7 +121,7 @@ public class SearchService extends IntentService {
         String status = "";
         String error_message = null;
         try {
-            ArrayList<ResultItem> places = new ArrayList<>();
+            ArrayList<Place> places = new ArrayList<>();
             client.newCall(request).execute();
             Response response = client.newCall(request).execute();
             jsonResponse = response.body().string();
@@ -126,6 +132,7 @@ public class SearchService extends IntentService {
             if (status.equals("OVER_QUERY_LIMIT")) {
 
             } else if (status.equals("OK")) {
+                //parse the results
                 JSONArray results = top.getJSONArray("results");
 
                 for (int i = 0; i < results.length(); i++) {
@@ -152,7 +159,7 @@ public class SearchService extends IntentService {
                     JSONObject location = geometry.getJSONObject("location");
                     double lat = location.getDouble("lat");
                     double lng = location.getDouble("lng");
-                    ResultItem place = new ResultItem(name, address, i, id, iconUrl, lat, lng);
+                    Place place = new Place(name, address, i, id, iconUrl, lat, lng);
                     places.add(place);
                 }
             }
@@ -163,6 +170,7 @@ public class SearchService extends IntentService {
             finishedSearchIntent.putExtra("allresults", places);
             finishedSearchIntent.putExtra("search", text);
             finishedSearchIntent.putExtra("type", type);
+            //broadcast the results
             LocalBroadcastManager.getInstance(this).sendBroadcast(finishedSearchIntent);
 
         }catch (IOException e) {
@@ -173,6 +181,7 @@ public class SearchService extends IntentService {
 
     }
 
+    //get a place details
     private void handleActionGetPlaceDetails(String url) {
 //        Log.d("****************url: ",url);
         OkHttpClient client = new OkHttpClient();
@@ -183,7 +192,7 @@ public class SearchService extends IntentService {
         String status = "";
         String error_message = null;
         try {
-            ResultItem place = null;
+            Place place = null;
             client.newCall(request).execute();
             Response response = client.newCall(request).execute();
             jsonResponse = response.body().string();
@@ -194,6 +203,7 @@ public class SearchService extends IntentService {
             if (status.equals("OVER_QUERY_LIMIT")) {
 
             } else if (status.equals("OK")) {
+                //parse the result
                 JSONObject result = top.getJSONObject("result");
                 String address = null;
                 if (result.has("formatted_address"))
@@ -212,13 +222,14 @@ public class SearchService extends IntentService {
                     rating = result.getDouble("rating");
                 }
 
-                place = new ResultItem(address, phone, website, rating);
+                place = new Place(address, phone, website, rating);
             }
 
             Intent finishedSearchIntent = new Intent(INTENT_FILTER_FINISHED_DETAILS);
             finishedSearchIntent.putExtra("status", status);
             finishedSearchIntent.putExtra("error_message", error_message);
             finishedSearchIntent.putExtra("place", place);
+            //broadcast the result
             LocalBroadcastManager.getInstance(this).sendBroadcast(finishedSearchIntent);
 
         }catch (IOException e) {
