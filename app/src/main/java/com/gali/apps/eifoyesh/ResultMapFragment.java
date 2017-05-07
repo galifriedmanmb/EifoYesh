@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -124,8 +125,22 @@ public class ResultMapFragment extends Fragment {
         //display the detailed data of the place
         if (place!=null) {
             nameTV.setText(place.name);
-            Picasso.with(getActivity()).load(place.iconUrl).into(placeIV);
-            SearchService.startActionGetPlaceDetails(getActivity(),place.placeId);
+            if (Utils.isConnected(getActivity())) {
+                //has internet, get the details
+                Picasso.with(getActivity()).load(place.iconUrl).into(placeIV);
+                //get the details and fill the details in the UI
+                SearchService.startActionGetPlaceDetails(getActivity(), place.placeId);
+            } else {
+                //no internet, try to load from db
+                Bitmap photoBM = Utils.decodeBase64(place.photoEncoded);
+                placeIV.setImageBitmap(photoBM);
+                String address = place.address;
+                String phone = place.phone;
+                String website = place.website;
+                double rating = place.rating;
+                //fill the details in the UI
+                setDetails(address, phone, website, rating);
+            }
 
             //only show "favorites" icon if not in favorites screen already...
             LinearLayout favoritesLO = (LinearLayout)mRootView.findViewById(R.id.buttonsLOFavoritesLO);
@@ -192,6 +207,72 @@ public class ResultMapFragment extends Fragment {
 
     }
 
+    //fill the datails of the place in the UI
+    private void setDetails(String address, String phone,String  website, double rating) {
+        if (address!=null)
+            addressTV.setText(address);
+        if (phone!=null) {
+            phoneTV.setText(phone);
+            phoneTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_DIAL );
+                    intent.setData(Uri.parse("tel:"+phoneTV.getText()));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {}
+                }
+            });
+            phoneIV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_DIAL );
+                    intent.setData(Uri.parse("tel:"+phoneTV.getText()));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {}
+                }
+            });
+        }
+        if (website!=null) {
+            websiteTV.setText(website);
+            websiteTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(""+websiteTV.getText()));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {}
+                }
+            });
+            websiteIV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(""+websiteTV.getText()));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {}
+                }
+            });
+        }
+        if (rating>0) {
+            Float ratingFloat = (float)rating;
+            DecimalFormat df = new DecimalFormat("#.#");
+            String ratingStr = df.format(ratingFloat);
+            ratingNumTV.setText(ratingStr);
+            ratingBar.setRating(ratingFloat);
+        } else {
+            LinearLayout ratingLayout = (LinearLayout)mRootView.findViewById(R.id.generalLOinner);
+            ratingLayout.setVisibility(LinearLayout.GONE);
+        }
+    }
+
     //recieve details of place
     class MySearchReciever extends BroadcastReceiver {
         @Override
@@ -207,79 +288,15 @@ public class ResultMapFragment extends Fragment {
 
             Place placeDetails  = intent.getParcelableExtra("place");
             String address = placeDetails.address;
-            final String phone = placeDetails.phone;
-            final String website = placeDetails.website;
+            String phone = placeDetails.phone;
+            String website = placeDetails.website;
             double rating = placeDetails.rating;
 
-            if (address!=null)
-                addressTV.setText(address);
-            if (phone!=null) {
-                phoneTV.setText(phone);
-                phoneTV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_DIAL );
-                        intent.setData(Uri.parse("tel:"+phone));
-                        try {
-                            startActivity(intent);
-                        } catch (ActivityNotFoundException e) {}
-                    }
-                });
-                phoneIV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_DIAL );
-                        intent.setData(Uri.parse("tel:"+phone));
-                        try {
-                            startActivity(intent);
-                        } catch (ActivityNotFoundException e) {}
-                    }
-                });
-
-
-            }
-            if (website!=null) {
-                websiteTV.setText(website);
-                websiteTV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(website));
-                        try {
-                            startActivity(intent);
-                        } catch (ActivityNotFoundException e) {}
-                    }
-                });
-                websiteIV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(website));
-                        try {
-                            startActivity(intent);
-                        } catch (ActivityNotFoundException e) {}
-                    }
-                });
-
-            }
-            if (rating>0) {
-                Float ratingFloat = (float)rating;
-                DecimalFormat df = new DecimalFormat("#.#");
-                String ratingStr = df.format(ratingFloat);
-                ratingNumTV.setText(ratingStr);
-                ratingBar.setRating(ratingFloat);
-            } else {
-                LinearLayout ratingLayout = (LinearLayout)mRootView.findViewById(R.id.generalLOinner);
-                ratingLayout.setVisibility(LinearLayout.GONE);
-            }
-
-
+            //fill the details in the UI
+            setDetails(address,phone,website,rating);
         }
     }
+
 
 
 }
